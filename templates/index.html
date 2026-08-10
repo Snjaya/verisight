@@ -1,98 +1,1255 @@
+{% raw %}
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verisight - Platform Cek Fakta</title>
-    <!-- Mengimpor Tailwind CSS -->
+    <title>VERISIGHT - Platform Verifikasi Informasi & Literasi Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 min-h-screen p-8 font-sans flex flex-col items-center">
-
-    <!-- Container Utama -->
-    <div class="max-w-3xl w-full bg-white p-8 rounded-2xl shadow-xl mt-10">
-        <h1 class="text-4xl font-extrabold text-blue-600 mb-2 text-center tracking-tight">Verisight</h1>
-        <p class="text-gray-500 mb-8 text-center text-lg">
-            Belajar verifikasi informasi dan tingkatkan literasi digitalmu.
-        </p>
-
-        <!-- Area Input -->
-        <div class="mb-6">
-            <label for="newsInput" class="block text-gray-700 font-bold mb-2">
-                Masukkan Teks Berita atau Tempel Link URL Artikel:
-            </label>
-            <textarea id="newsInput" rows="5" 
-                class="w-full border-2 border-gray-200 p-4 rounded-lg focus:outline-none focus:border-blue-500 transition resize-y" 
-                placeholder="Tempel teks mencurigakan atau link berita di sini..."></textarea>
-        </div>
-
-        <button id="checkButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-300 shadow-md">
-            Analisis Informasi
-        </button>
-
-        <!-- Indikator Loading -->
-        <div id="loadingArea" class="hidden text-center mt-8 p-4">
-            <p class="text-blue-600 font-semibold animate-pulse flex items-center justify-center gap-2">
-                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                AI sedang menganalisis data...
-            </p>
-        </div>
-
-        <!-- Area Hasil Analisis -->
-        <div id="resultArea" class="hidden mt-8 p-6 bg-white border border-gray-100 shadow-inner rounded-lg">
-            <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Hasil Analisis Pembelajaran:</h3>
-            <!-- Konten dari AI akan dimuat di sini -->
-            <div id="aiResponse" class="text-gray-700 leading-relaxed"></div>
-        </div>
-    </div>
-
-    <!-- Script JavaScript -->
     <script>
-        const checkButton = document.getElementById('checkButton');
-        const newsInput = document.getElementById('newsInput');
-        const loadingArea = document.getElementById('loadingArea');
-        const resultArea = document.getElementById('resultArea');
-        const aiResponse = document.getElementById('aiResponse');
-
-        checkButton.addEventListener('click', async () => {
-            const textToAnalyze = newsInput.value.trim();
-            
-            if (!textToAnalyze) {
-                alert("Tolong masukkan teks berita atau link terlebih dahulu!");
-                return;
-            }
-
-            // Tampilkan loading, sembunyikan hasil sebelumnya
-            loadingArea.classList.remove('hidden');
-            resultArea.classList.add('hidden');
-            checkButton.disabled = true;
-            checkButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-            try {
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: textToAnalyze })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Masukkan hasil HTML dari AI ke dalam div
-                    aiResponse.innerHTML = data.result;
-                    resultArea.classList.remove('hidden');
-                } else {
-                    alert("Terjadi kesalahan: " + data.error);
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            200: '#bcccdc',
+                            300: '#9fb3c8',
+                            400: '#829ab1',
+                            500: '#627d98',
+                            600: '#486581',
+                            700: '#334e68',
+                            800: '#243b53',
+                            900: '#102a43',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
                 }
-            } catch (error) {
-                alert("Gagal terhubung ke server. Pastikan server Flask berjalan.");
-            } finally {
-                // Matikan loading, kembalikan tombol
-                loadingArea.classList.add('hidden');
-                checkButton.disabled = false;
-                checkButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-        });
+        }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
+        }
+
+        .transition-smooth {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .prose-clean h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .prose-clean p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 flex flex-col justify-between">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ---------- MODULES & QUIZ DATA ----------
+        const literacyModules = [
+            {
+                id: 1, judul: "Mengenali Tangkapan Layar & Foto Hasil Manipulasi", deskripsi: "Teknik mendeteksi editing metadata, font janggal, dan pencarian gambar terbalik.",
+                durasi: "8 menit", level: "Dasar", kategori: "Gambar", progress: 60
+            },
+            {
+                id: 2, judul: "Cara Memeriksa Sumber Informasi & Portal Web Palsu", deskripsi: "Kenali perbedaan website portal berita resmi (.go.id / pers) dan domain tiruan.",
+                durasi: "10 menit", level: "Dasar", kategori: "Sumber", progress: 20
+            },
+            {
+                id: 3, judul: "Mengenali Judul Clickbait & Sensasional", deskripsi: "Pelajari ciri-ciri judul yang dibuat khusus memancing emosi dan umpan klik.",
+                durasi: "6 menit", level: "Dasar", kategori: "Media Sosial", progress: 100
+            },
+            {
+                id: 4, judul: "Membedakan Fakta, Opini, dan Disinformasi Digital", deskripsi: "Pahami perbedaan klaim yang didukung data ilmiah vs klaim subjektif.",
+                durasi: "7 menit", level: "Menengah", kategori: "Analisis", progress: 0
+            },
+            {
+                id: 5, judul: "Waspada Deepfake Audio & Video Generatif AI", deskripsi: "Ciri-ciri fisik video tiruan tokoh publik berbasis kecerdasan buatan.",
+                durasi: "12 menit", level: "Lanjutan", kategori: "Gambar", progress: 0
+            },
+            {
+                id: 6, judul: "Anatomi Penipuan Modus Bantuan Pemerintah & Phishing", deskripsi: "Mengenali pola kalimat modus penipuan berantai di platform pesan singkat.",
+                durasi: "9 menit", level: "Dasar", kategori: "Keamanan", progress: 0
+            }
+        ];
+
+        const quizQuestions = [
+            {
+                id: 1,
+                pertanyaan: "Anda menerima gambar tangkapan layar pesan berantai berisi klaim 'Pemerintah Membagikan Bantuan Rp10 Juta untuk Mahasiswa' disertai tombol link bit.ly. Apa langkah verifikasi utama yang harus dilakukan?",
+                options: [
+                    "A. Langsung membagikannya ke grup obrolan agar teman tidak ketinggalan",
+                    "B. Membuka tautan bit.ly tersebut untuk mengisi formulir",
+                    "C. Memeriksa konfirmasi resmi di kanal pemerintah (.go.id) dan mengabaikan tautan anonim",
+                    "D. Percaya begitu saja karena menyertakan logo resmi"
+                ],
+                correct: 2,
+                explanation: "Informasi resmi pemerintah selalu diumumkan melalui domain publik resmi (.go.id). Tautan singkat anonim seperti bit.ly seringkali merupakan indikator phishing."
+            },
+            {
+                id: 2,
+                pertanyaan: "Sebuah foto menunjukkan bencana banjir dengan klaim lokasi terkini. Bagaimana cara memverifikasi kebenaran waktu dan lokasi foto tersebut?",
+                options: [
+                    "A. Memercayainya jika diunggah oleh akun dengan banyak pengikut",
+                    "B. Melakukan pencarian gambar terbalik (Reverse Image Search)",
+                    "C. Membaca komentar pengguna di bawah unggahan",
+                    "D. Mengamati filter warna gambar"
+                ],
+                correct: 1,
+                explanation: "Pencarian gambar terbalik membantu mengecek riwayat tanggal dan konteks asli foto saat pertama kali dipublikasikan di internet."
+            },
+            {
+                id: 3,
+                pertanyaan: "Judul artikel berbunyi: 'GEGER! Bahan Dapur Ini Terbukti Sembuhkan Kanker Dalam 3 Hari!'. Mengapa judul ini perlu dicurigai?",
+                options: [
+                    "A. Penggunaan klaim medis ekstrem tanpa uji klinis dan judul hiperbolis",
+                    "B. Gambar pendukung terlalu jelas",
+                    "C. Waktu penerbitan di siang hari",
+                    "D. Tata bahasa Indonesia yang digunakan baku"
+                ],
+                correct: 0,
+                explanation: "Klaim medis dramatis yang menjanjikan kesembuhan instan tanpa referensi jurnal ilmiah resmi merupakan ciri utama disinformasi kesehatan."
+            },
+            {
+                id: 4,
+                pertanyaan: "Apa definisi dari sumber primer dalam evaluasi kebenaran informasi?",
+                options: [
+                    "A. Tulisan blog dari penulis anonim",
+                    "B. Dokumen resmi, laporan riset asli, atau rilis langsung dari lembaga berwenang",
+                    "C. Unggahan media sosial yang dibagikan ulang",
+                    "D. Pesan terusan di aplikasi percakapan"
+                ],
+                correct: 1,
+                explanation: "Sumber primer adalah rilis atau dokumen asli langsung dari pihak pertama tanpa distorsi perantara."
+            },
+            {
+                id: 5,
+                pertanyaan: "Mengapa disinformasi seringkali dirancang untuk memancing emosi kuat seperti rasa takut atau gembira berlebihan?",
+                options: [
+                    "A. Agar pembaca mengabaikan pesan",
+                    "B. Menghambat daya nalar kritis pembaca sehingga menyebarkannya secara impulsif",
+                    "C. Untuk membantu pemahaman pembaca",
+                    "D. Meningkatkan standar jurnalistik"
+                ],
+                correct: 1,
+                explanation: "Pemicu emosi yang kuat adalah teknik psikologis agar penerima pesan membagikannya sebelum sempat memikirkan logika kebenarannya."
+            }
+        ];
+
+        // ---------- ROUTER SIMULATION ----------
+        function useRouter() {
+            const [route, setRoute] = useState(window.location.hash.slice(1) || '/');
+
+            useEffect(() => {
+                const handleHashChange = () => {
+                    setRoute(window.location.hash.slice(1) || '/');
+                };
+                window.addEventListener('hashchange', handleHashChange);
+                return () => window.removeEventListener('hashchange', handleHashChange);
+            }, []);
+
+            const navigate = (path) => {
+                window.location.hash = path;
+            };
+
+            return { route, navigate };
+        }
+
+        // ---------- NAVIGATION ----------
+        function Navigation({ route, navigate }) {
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+            const navItems = [
+                { label: 'Periksa Informasi', path: '/' },
+                { label: 'Artikel & Literasi', path: '/literacy' },
+                { label: 'Kuis Hoaks', path: '/quiz' },
+                { label: 'About Verisight', path: '/about' },
+            ];
+
+            const isActive = (path) => {
+                if (path === '/') return route === '/' || route === '';
+                return route.startsWith(path);
+            };
+
+            return (
+                <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16">
+                            {/* Logo */}
+                            <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow-md shadow-primary-200">
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-xl font-black text-navy-900 tracking-tight">VERISIGHT</span>
+                                </div>
+                            </div>
+
+                            {/* Desktop Navigation */}
+                            <div className="hidden md:flex items-center space-x-1">
+                                {navItems.map((item) => (
+                                    <button
+                                        key={item.path}
+                                        onClick={() => navigate(item.path)}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-smooth ${
+                                            isActive(item.path)
+                                                ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Mobile Menu Button */}
+                            <div className="md:hidden">
+                                <button
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                    className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {mobileMenuOpen ? (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        ) : (
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                        )}
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Mobile Navigation Drawer */}
+                        {mobileMenuOpen && (
+                            <div className="md:hidden border-t border-slate-200 py-3 fade-in bg-white">
+                                <div className="space-y-1">
+                                    {navItems.map((item) => (
+                                        <button
+                                            key={item.path}
+                                            onClick={() => {
+                                                navigate(item.path);
+                                                setMobileMenuOpen(false);
+                                            }}
+                                            className={`block w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold ${
+                                                isActive(item.path)
+                                                    ? 'bg-primary-50 text-primary-700 font-bold'
+                                                    : 'text-slate-600 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </nav>
+            );
+        }
+
+        // ---------- PERIKSA INFORMASI (MAIN PAGE) ----------
+        function CheckPage({ navigate, setLastAnalysis }) {
+            const [activeTab, setActiveTab] = useState('text'); // Default to text/link
+            const [textInput, setTextInput] = useState('');
+            const [urlInput, setUrlInput] = useState('');
+            const [selectedImage, setSelectedImage] = useState(null);
+            const [isDragging, setIsDragging] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleFileUpload = (file) => {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setSelectedImage({
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        previewUrl: e.target.result,
+                        ocrText: "Teks terdeteksi dari gambar " + file.name + ": 'Pengumuman bantuan tunai mahasiswa semester ini. Silakan verifikasi kebenaran informasi ini.'"
+                    });
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            };
+
+            // REAL AI ANALYSIS CALL TO BACKEND FLASK API (/api/analyze)
+            const handleAnalyze = async () => {
+                let textToSend = '';
+                let analysisType = activeTab;
+                let inputTitle = '';
+
+                if (activeTab === 'image') {
+                    if (!selectedImage) return;
+                    textToSend = `[ANALISIS TANGKAPAN LAYAR: ${selectedImage.name}]\n${selectedImage.ocrText}`;
+                    inputTitle = selectedImage.name;
+                } else if (activeTab === 'url') {
+                    if (!urlInput.trim()) return;
+                    textToSend = urlInput.trim();
+                    inputTitle = urlInput.trim();
+                } else {
+                    if (!textInput.trim()) return;
+                    textToSend = textInput.trim();
+                    inputTitle = textInput.trim();
+                }
+
+                setIsLoading(true);
+
+                try {
+                    const response = await fetch('/api/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: textToSend })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        if (setLastAnalysis) {
+                            setLastAnalysis({
+                                type: analysisType,
+                                title: inputTitle,
+                                rawInput: textToSend,
+                                aiResultHtml: data.result,
+                                aiThinking: data.thinking
+                            });
+                        }
+                        setIsLoading(false);
+                        navigate('/check/result');
+                    } else {
+                        alert("Terjadi kesalahan analisis AI: " + (data.error || "Gagal memproses data"));
+                        setIsLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Error calling /api/analyze:", error);
+                    // Offline / Standalone HTML fallback
+                    if (setLastAnalysis) {
+                        setLastAnalysis({
+                            type: analysisType,
+                            title: inputTitle,
+                            rawInput: textToSend,
+                            aiResultHtml: `
+                                <p class="mb-4">Halo! Saya asisten literasi digital Anda dari <strong>Verisight</strong>. Berikut adalah analisis informasi tersebut:</p>
+                                <ul class="list-disc pl-5 space-y-3 mb-6">
+                                    <li><strong>Inti Informasi:</strong> ${textToSend}</li>
+                                    <li><strong>Tingkat Kredibilitas:</strong> <span class="font-bold text-amber-600">Perlu Verifikasi Lanjutan</span></li>
+                                    <li><strong>Analisis Kritis:</strong> Informasi ini memerlukan bukti pendukung dari rilis resmi portal pemerintah atau media kredibel.</li>
+                                </ul>
+                                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                    <strong>Tips Verisight:</strong> Lakukan pengecekan pada situs portal berita terpercaya (.go.id atau institusi pers resmi).
+                                </div>
+                            `,
+                            aiThinking: "Analisis simulasi."
+                        });
+                    }
+                    setIsLoading(false);
+                    navigate('/check/result');
+                }
+            };
+
+            if (isLoading) {
+                const loadingInfo = {
+                    text: {
+                        title: "Menganalisis Pernyataan Teks...",
+                        desc: "Gemini AI sedang memproses klaim teks dan mengevaluasi indikator kebenaran fakta.",
+                        badge: "Pernyataan Teks"
+                    },
+                    url: {
+                        title: "Mengambil Artikel & Web Scraping...",
+                        desc: "Sistem sedang membaca isi tautan URL dan melakukan verifikasi fakta melalui AI.",
+                        badge: "Tautan URL"
+                    },
+                    image: {
+                        title: "Ekstraksi Teks & Analisis Gambar...",
+                        desc: "Sistem sedang membaca teks tangkapan layar (OCR) dan menguji keabsahan informasinya.",
+                        badge: "Tangkapan Layar"
+                    }
+                }[activeTab] || {
+                    title: "Memproses Informasi...",
+                    desc: "Gemini AI sedang mengevaluasi kebenaran data.",
+                    badge: "Verifikasi"
+                };
+
+                return (
+                    <div className="max-w-xl mx-auto px-4 py-20 fade-in">
+                        <div className="bg-white rounded-2xl card-shadow p-10 text-center border border-slate-100">
+                            {/* Animated Glowing Ring Spinner */}
+                            <div className="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                                <div className="absolute inset-0 rounded-full border-4 border-primary-100 animate-ping opacity-25"></div>
+                                <div className="w-16 h-16 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin flex items-center justify-center">
+                                    <svg className="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <span className="inline-block px-3 py-1 bg-primary-50 text-primary-700 text-xs font-bold rounded-full mb-3 border border-primary-100">
+                                Mode: {loadingInfo.badge}
+                            </span>
+
+                            <h2 className="text-xl font-black text-navy-900 mb-2">{loadingInfo.title}</h2>
+                            <p className="text-slate-500 text-xs max-w-md mx-auto leading-relaxed mb-6">
+                                {loadingInfo.desc}
+                            </p>
+
+                            {/* Clean Animated Loading Line */}
+                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                <div className="bg-primary-600 h-1.5 rounded-full animate-pulse w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    {/* Header Banner */}
+                    <div className="text-center max-w-3xl mx-auto mb-10">
+                        <span className="inline-flex items-center gap-2 px-3.5 py-1 bg-primary-100 text-primary-800 text-xs font-bold rounded-full mb-3">
+                            <svg className="w-3.5 h-3.5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Platform Verifikasi Informasi & Literasi Digital
+                        </span>
+                        <h1 className="text-3xl sm:text-4xl font-black text-navy-900 tracking-tight mb-3">
+                            Periksa Kebenaran Informasi
+                        </h1>
+                        <p className="text-slate-600 text-sm leading-relaxed">
+                            Masukkan tautan berita, teks pernyataan, atau gambar tangkapan layar untuk menganalisis kebenaran fakta melalui Gemini AI.
+                        </p>
+                    </div>
+
+                    {/* Main Checker Card */}
+                    <div className="bg-white rounded-2xl card-shadow p-6 sm:p-8 mb-8 border border-slate-100">
+                        {/* Tab Headers */}
+                        <div className="flex border-b border-slate-200 mb-6 gap-2">
+                            {[
+                                {
+                                    id: 'text', label: 'Masukkan Teks Klaim',
+                                    icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                                },
+                                {
+                                    id: 'url', label: 'Tautan URL Artikel',
+                                    icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'
+                                },
+                                {
+                                    id: 'image', label: 'Unggah Gambar / Screenshot',
+                                    icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                                }
+                            ].map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2.5 px-5 py-3.5 border-b-2 font-bold text-sm transition-smooth ${
+                                        activeTab === tab.id
+                                            ? 'border-primary-600 text-primary-700 bg-primary-50/50 rounded-t-lg'
+                                            : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon} />
+                                    </svg>
+                                    <span>{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* TAB 1: TEXT INPUT */}
+                        {activeTab === 'text' && (
+                            <div className="fade-in">
+                                <label className="block text-xs font-bold text-slate-600 mb-2">
+                                    Masukkan Teks Pernyataan atau Berita:
+                                </label>
+                                <textarea
+                                    value={textInput}
+                                    onChange={(e) => setTextInput(e.target.value)}
+                                    placeholder="Tempel atau ketik klaim berita yang ingin dianalisis Gemini AI..."
+                                    className="w-full h-40 p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-primary-300 outline-none text-slate-800 text-sm"
+                                    maxLength={1000}
+                                ></textarea>
+                                <div className="flex items-center justify-between mt-2">
+                                    <span className="text-xs text-slate-400">{textInput.length} / 1000 Karakter</span>
+                                    {textInput && (
+                                        <button onClick={() => setTextInput('')} className="text-xs text-rose-600 font-semibold hover:underline">
+                                            Bersihkan Teks
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="mt-6 text-right">
+                                    <button
+                                        onClick={handleAnalyze}
+                                        disabled={!textInput.trim()}
+                                        className={`px-7 py-3 rounded-xl font-bold text-xs transition-smooth shadow-sm ${
+                                            textInput.trim()
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Analisis Teks Dengan AI
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 2: URL INPUT */}
+                        {activeTab === 'url' && (
+                            <div className="fade-in">
+                                <label className="block text-xs font-bold text-slate-600 mb-2">
+                                    Tempel Tautan URL Artikel atau Berita Digital:
+                                </label>
+                                <input
+                                    type="url"
+                                    value={urlInput}
+                                    onChange={(e) => setUrlInput(e.target.value)}
+                                    placeholder="https://situs-berita.com/artikel-contoh"
+                                    className="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-300 outline-none text-slate-800 text-sm mb-3"
+                                />
+                                <p className="text-xs text-slate-400 mb-6">
+                                    Sistem akan melakukan web scraping untuk mengambil isi berita dan memverifikasi klaimnya melalui Gemini AI.
+                                </p>
+
+                                <div className="text-right">
+                                    <button
+                                        onClick={handleAnalyze}
+                                        disabled={!urlInput.trim()}
+                                        className={`px-7 py-3 rounded-xl font-bold text-xs transition-smooth shadow-sm ${
+                                            urlInput.trim()
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Analisis Tautan Dengan AI
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 3: IMAGE UPLOAD */}
+                        {activeTab === 'image' && (
+                            <div className="fade-in">
+                                <p className="text-xs font-semibold text-slate-500 mb-3">
+                                    Unggah gambar tangkapan layar pesan singkat atau pengumuman digital untuk diekstrak dan dianalisis oleh Gemini AI.
+                                </p>
+
+                                <div
+                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                    onDragLeave={() => setIsDragging(false)}
+                                    onDrop={handleDrop}
+                                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-smooth cursor-pointer ${
+                                        isDragging
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : selectedImage
+                                            ? 'border-emerald-400 bg-emerald-50/30'
+                                            : 'border-slate-300 hover:border-primary-400 bg-slate-50 hover:bg-primary-50/20'
+                                    }`}
+                                >
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={(e) => e.target.files[0] && handleFileUpload(e.target.files[0])}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+
+                                    {selectedImage ? (
+                                        <div className="flex flex-col sm:flex-row items-center gap-6 text-left">
+                                            <div className="w-28 h-28 rounded-lg overflow-hidden border border-slate-200 shadow-sm flex-shrink-0 bg-white">
+                                                <img src={selectedImage.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-xs font-bold px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
+                                                        Gambar Diunggah
+                                                    </span>
+                                                    <span className="text-xs text-slate-400">{selectedImage.size}</span>
+                                                </div>
+                                                <h4 className="font-bold text-navy-900 text-sm mb-2">{selectedImage.name}</h4>
+
+                                                <div className="bg-white p-3 rounded-lg border border-slate-200 text-xs text-slate-600 mb-3">
+                                                    <strong className="text-primary-700 block mb-0.5">Hasil Ekstraksi Teks:</strong>
+                                                    <p className="italic text-slate-700">"{selectedImage.ocrText}"</p>
+                                                </div>
+
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+                                                    className="text-xs text-rose-600 hover:text-rose-700 font-bold underline"
+                                                >
+                                                    Ganti Gambar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 text-primary-600">
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-slate-700 font-bold text-sm mb-1">Tarik & lepas file gambar di sini</p>
+                                            <p className="text-slate-400 text-xs mb-3">atau klik untuk memilih file dari komputer</p>
+                                            <span className="inline-block px-4 py-2 bg-primary-600 text-white font-bold text-xs rounded-lg shadow-sm">
+                                                Pilih Gambar
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-6 text-right">
+                                    <button
+                                        onClick={handleAnalyze}
+                                        disabled={!selectedImage}
+                                        className={`px-7 py-3 rounded-xl font-bold text-xs transition-smooth shadow-sm ${
+                                            selectedImage
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Analisis Gambar Dengan AI
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Features Overview Grid */}
+                    <div className="grid md:grid-cols-3 gap-6 mt-10">
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200 card-shadow">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center mb-4">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-bold text-navy-900 text-sm mb-1.5">Web Scraper & OCR AI</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Membaca isi halaman web berita otomatis & melakukan analisis fakta berstandar jurnalistik.
+                            </p>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200 card-shadow">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center mb-4">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h3 className="font-bold text-navy-900 text-sm mb-1.5">Transparansi Nalar AI</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Menyajikan alur pemikiran kritis serta rincian evaluasi kebenaran klaim dari Gemini AI.
+                            </p>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl border border-slate-200 card-shadow">
+                            <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center mb-4">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <h3 className="font-bold text-navy-900 text-sm mb-1.5">Modul Literasi Digital</h3>
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                                Dilengkapi materi artikel panduan dan kuis evaluasi pemahaman fakta internet.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------- ANALYSIS RESULT PAGE ----------
+        function AnalysisResult({ navigate, lastAnalysis }) {
+            const [copied, setCopied] = useState(false);
+            const [showThinking, setShowThinking] = useState(false);
+
+            const analysis = lastAnalysis || {
+                type: 'text',
+                title: 'Informasi Klaim',
+                aiResultHtml: `
+                    <p class="mb-4">Halo! Saya asisten literasi digital Anda dari <strong>Verisight</strong>. Mari kita bedah informasi tersebut bersama-sama:</p>
+                    <ul class="list-disc pl-5 space-y-3 mb-6">
+                        <li><strong>Inti Informasi:</strong> Menguji klaim yang dimasukkan.</li>
+                        <li><strong>Tingkat Kredibilitas:</strong> <span class="font-bold text-amber-600">Perlu Verifikasi</span></li>
+                    </ul>
+                `,
+                aiThinking: "Analisis simulasi."
+            };
+
+            const handleShare = () => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold text-xs mb-6 transition-smooth"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <span>Kembali ke Periksa Informasi</span>
+                    </button>
+
+                    <div className="bg-white rounded-2xl card-shadow overflow-hidden border border-slate-200 mb-8">
+                        <div className="bg-primary-600 p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <span className="inline-block px-3 py-0.5 bg-primary-700 text-primary-100 text-[11px] font-bold rounded-full uppercase tracking-wider mb-2">
+                                    Hasil Analisis Verisight AI
+                                </span>
+                                <h1 className="text-xl sm:text-2xl font-black max-w-xl truncate">{analysis.title}</h1>
+                            </div>
+                            <div className="bg-primary-700/60 px-4 py-2 rounded-xl text-center border border-primary-400/30 flex-shrink-0">
+                                <span className="text-[11px] text-primary-200 block font-semibold">Status Analisis</span>
+                                <span className="text-xs font-bold text-white">Gemini AI Response</span>
+                            </div>
+                        </div>
+
+                        <div className="p-6 sm:p-8 space-y-6">
+                            {/* Live AI Analysis Render */}
+                            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-slate-800 leading-relaxed text-sm">
+                                <div dangerouslySetInnerHTML={{ __html: analysis.aiResultHtml }} />
+                            </div>
+
+                            {/* AI Internal Reasoning Trace */}
+                            {analysis.aiThinking && (
+                                <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                                    <button
+                                        onClick={() => setShowThinking(!showThinking)}
+                                        className="w-full px-5 py-3 flex items-center justify-between text-xs font-bold text-slate-700 hover:bg-slate-100 transition-smooth"
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                            </svg>
+                                            Transparansi Catatan Penalaran Internal AI (Reasoning Trace)
+                                        </span>
+                                        <span>{showThinking ? '▲ Sembunyikan' : '▼ Tampilkan'}</span>
+                                    </button>
+                                    {showThinking && (
+                                        <div className="p-5 border-t border-slate-200 bg-white font-mono text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                            {analysis.aiThinking}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-200">
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="w-full sm:w-auto px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl transition-smooth shadow-sm"
+                                >
+                                    Periksa Informasi Lain
+                                </button>
+                                <div className="flex gap-2 w-full sm:w-auto">
+                                    <button
+                                        onClick={handleShare}
+                                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-smooth"
+                                    >
+                                        {copied ? 'Tautan Disalin' : 'Bagikan Hasil'}
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/quiz')}
+                                        className="flex-1 sm:flex-initial px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-smooth"
+                                    >
+                                        Ikuti Kuis Pemahaman
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------- ABOUT PAGE ----------
+        function AboutPage({ navigate }) {
+            return (
+                <div className="fade-in">
+                    <section className="bg-navy-900 text-white py-16 md:py-24">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                            <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest inline-block mb-4">
+                                Tentang Platform
+                            </span>
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-6 leading-tight">
+                                Edukasi Nalar Kritis di Era Informasi Digital
+                            </h1>
+                            <p className="text-slate-300 text-sm md:text-base max-w-3xl mx-auto mb-8 leading-relaxed">
+                                Verisight dirancang untuk membantu publik menguji kebenaran pernyataan, gambar tangkapan layar, dan artikel digital melalui alur evaluasi kritis terstruktur.
+                            </p>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="px-6 py-3 bg-primary-600 text-white font-bold text-xs rounded-xl hover:bg-primary-500 transition-smooth shadow-lg shadow-primary-900/50"
+                                >
+                                    Coba Periksa Informasi
+                                </button>
+                                <button
+                                    onClick={() => navigate('/literacy')}
+                                    className="px-6 py-3 bg-white/10 text-white font-bold text-xs rounded-xl hover:bg-white/20 transition-smooth border border-white/20"
+                                >
+                                    Baca Artikel Literasi
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="py-16 bg-white">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="max-w-3xl mx-auto text-center">
+                                <h2 className="text-2xl font-black text-navy-900 mb-4">
+                                    Pendekatan Evaluasi Informasi
+                                </h2>
+                                <p className="text-slate-600 text-sm leading-relaxed mb-8">
+                                    Penilaian informasi tidak hanya terbatas pada vonis akhir, melainkan penyediaan indikator nalar kritis untuk melatih kecermatan pengguna dalam memilah berita.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            );
+        }
+
+        // ---------- ARTIKEL PAGE ----------
+        function LiteracyPage({ navigate }) {
+            const [activeCategory, setActiveCategory] = useState('Semua');
+            const [searchQuery, setSearchQuery] = useState('');
+
+            const categories = ['Semua', 'Gambar', 'Sumber', 'Media Sosial', 'Analisis', 'Keamanan'];
+
+            const filteredModules = literacyModules.filter(m => {
+                const matchCategory = activeCategory === 'Semua' || m.kategori === activeCategory;
+                const matchSearch = m.judul.toLowerCase().includes(searchQuery.toLowerCase()) || m.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCategory && matchSearch;
+            });
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 className="text-2xl font-black text-navy-900 mb-1">Artikel & Literasi Digital</h1>
+                            <p className="text-slate-600 text-xs">Panduan dan artikel materi evaluasi fakta digital.</p>
+                        </div>
+                        <div className="w-full md:w-72">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Cari artikel..."
+                                className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-primary-300 outline-none"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-8">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-smooth ${
+                                    activeCategory === cat
+                                        ? 'bg-primary-600 text-white'
+                                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredModules.map((module) => (
+                            <div
+                                key={module.id}
+                                onClick={() => navigate('/literacy/detail')}
+                                className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 hover:shadow-lg transition-smooth cursor-pointer flex flex-col justify-between"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-700">
+                                            {module.kategori}
+                                        </span>
+                                        <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {module.durasi}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-sm font-bold text-navy-900 mb-2 leading-snug hover:text-primary-600 transition-smooth">
+                                        {module.judul}
+                                    </h3>
+                                    <p className="text-xs text-slate-600 mb-4 line-clamp-2">{module.deskripsi}</p>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                                        <span>Level: <strong>{module.level}</strong></span>
+                                        <span>{module.progress}% Selesai</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                        <div className="bg-primary-600 h-1.5 rounded-full" style={ { width: `${module.progress}%` } }></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------- LITERACY DETAIL ----------
+        function LiteracyDetailPage({ navigate }) {
+            return (
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                    <button
+                        onClick={() => navigate('/literacy')}
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold mb-6 transition-smooth"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <span>Kembali ke Daftar Artikel</span>
+                    </button>
+
+                    <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 sm:p-10">
+                        <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full inline-block mb-3">
+                            Tingkat Dasar • Gambar
+                        </span>
+                        <h1 className="text-2xl font-black text-navy-900 mb-4">
+                            Mengenali Tangkapan Layar & Foto Hasil Manipulasi
+                        </h1>
+
+                        <div className="flex items-center gap-4 text-xs text-slate-400 pb-6 border-b border-slate-200 mb-6">
+                            <span>Tim Edukasi Verisight</span>
+                            <span>•</span>
+                            <span>Estimasi Baca: 8 Menit</span>
+                        </div>
+
+                        <div className="prose-clean text-sm">
+                            <h2>1. Manipulasi Gambar Tangkapan Layar</h2>
+                            <p>Tangkapan layar obrolan sering dimanfaatkan untuk menciptakan kesan pesan rahasia. Format ini relatif mudah disunting menggunakan aplikasi penyuntingan grafis sederhana.</p>
+
+                            <h2>2. Pemeriksaan Tipografi dan Format</h2>
+                            <p>Gambar hasil suntingan umumnya memperlihatkan ketidakseragaman ukuran huruf atau distorsi piksel pada area nama pengirim dan isi teks.</p>
+
+                            <h2>3. Pencarian Gambar Terbalik</h2>
+                            <p>Pencarian gambar terbalik digunakan untuk menemukan asal penerbitan foto serta mendeteksi apakah foto lama dipublikasikan kembali dengan narasi berbeda.</p>
+
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 my-6">
+                                <strong className="text-navy-900 text-xs block mb-1">Catatan Studi Kasus:</strong>
+                                <p className="text-xs text-slate-600">Pemberitahuan bantuan yang beredar di aplikasi percakapan sering menggunakan format gambar editan. Verifikasi wajib dilakukan di kanal portal resmi.</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <span className="text-xs text-slate-500">Evaluasi pemahaman artikel ini di Kuis.</span>
+                            <button
+                                onClick={() => navigate('/quiz')}
+                                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-smooth shadow-sm"
+                            >
+                                Ikuti Kuis Pemahaman
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------- KUIS PAGE ----------
+        function QuizPage({ navigate }) {
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [showExplanation, setShowExplanation] = useState(false);
+            const [score, setScore] = useState(0);
+            const [quizComplete, setQuizComplete] = useState(false);
+
+            const question = quizQuestions[currentQuestion];
+
+            const handleAnswer = (idx) => {
+                if (showExplanation) return;
+                setSelectedAnswer(idx);
+                if (idx === question.correct) {
+                    setScore(score + 1);
+                }
+                setShowExplanation(true);
+            };
+
+            const handleNext = () => {
+                if (currentQuestion < quizQuestions.length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setSelectedAnswer(null);
+                    setShowExplanation(false);
+                } else {
+                    setQuizComplete(true);
+                }
+            };
+
+            if (quizComplete) {
+                return (
+                    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center fade-in">
+                        <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-8 sm:p-12">
+                            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h1 className="text-2xl font-black text-navy-900 mb-2">Kuis Selesai</h1>
+                            <p className="text-slate-500 text-xs mb-6">Skor pemahaman evaluasi fakta:</p>
+
+                            <div className="text-4xl font-black text-primary-600 mb-2">
+                                {score * 20} <span className="text-sm text-slate-400 font-normal">/ 100</span>
+                            </div>
+                            <p className="text-xs font-bold text-emerald-700 bg-emerald-50 py-1.5 px-4 rounded-full inline-block mb-8">
+                                Menjawab {score} dari {quizQuestions.length} pertanyaan dengan benar
+                            </p>
+
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    onClick={() => navigate('/literacy')}
+                                    className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-smooth"
+                                >
+                                    Artikel Lain
+                                </button>
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl transition-smooth shadow-sm"
+                                >
+                                    Periksa Informasi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            Pertanyaan {currentQuestion + 1} / {quizQuestions.length}
+                        </span>
+                        <span className="text-xs font-bold text-primary-700 bg-primary-50 px-3 py-1 rounded-full border border-primary-200">
+                            Skor: {score}
+                        </span>
+                    </div>
+
+                    <div className="w-full bg-slate-200 rounded-full h-2 mb-6 overflow-hidden">
+                        <div
+                            className="bg-primary-600 h-2 rounded-full transition-smooth"
+                            style={ { width: `${((currentQuestion + 1) / quizQuestions.length) * 100}%` } }
+                        ></div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 sm:p-8">
+                        <h2 className="text-sm sm:text-base font-bold text-navy-900 mb-6 leading-relaxed">
+                            {question.pertanyaan}
+                        </h2>
+
+                        <div className="space-y-3 mb-6">
+                            {question.options.map((option, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleAnswer(idx)}
+                                    disabled={showExplanation}
+                                    className={`w-full text-left p-4 rounded-xl border-2 font-medium text-xs sm:text-sm transition-smooth ${
+                                        showExplanation
+                                            ? idx === question.correct
+                                                ? 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold'
+                                                : idx === selectedAnswer
+                                                ? 'border-rose-500 bg-rose-50 text-rose-900 font-bold'
+                                                : 'border-slate-200 bg-slate-50 text-slate-400 opacity-60'
+                                            : selectedAnswer === idx
+                                            ? 'border-primary-500 bg-primary-50 text-primary-900 font-bold'
+                                            : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                                    }`}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+
+                        {showExplanation && (
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl mb-6 fade-in">
+                                <span className="text-xs font-bold text-primary-800 block mb-1">Penjelasan Verisight:</span>
+                                <p className="text-xs text-primary-900 leading-relaxed">{question.explanation}</p>
+                            </div>
+                        )}
+
+                        {showExplanation && (
+                            <button
+                                onClick={handleNext}
+                                className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl transition-smooth shadow-sm"
+                            >
+                                {currentQuestion < quizQuestions.length - 1 ? 'Pertanyaan Berikutnya' : 'Lihat Skor Akhir'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // ---------- FOOTER ----------
+        function Footer({ navigate }) {
+            return (
+                <footer className="bg-navy-900 text-white py-12 mt-16 border-t border-navy-800">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid md:grid-cols-3 gap-8 mb-8">
+                            <div>
+                                <div className="flex items-center space-x-2 mb-4">
+                                    <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-xl font-black text-white tracking-tight">VERISIGHT</span>
+                                </div>
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                    Platform Verifikasi Informasi Digital & Asisten Literasi Kritis AI.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Navigasi Utama</h4>
+                                <ul className="space-y-2 text-xs text-slate-400 font-medium">
+                                    <li><button onClick={() => navigate('/')} className="hover:text-white">Periksa Informasi</button></li>
+                                    <li><button onClick={() => navigate('/literacy')} className="hover:text-white">Artikel & Literasi</button></li>
+                                    <li><button onClick={() => navigate('/quiz')} className="hover:text-white">Kuis Hoaks</button></li>
+                                    <li><button onClick={() => navigate('/about')} className="hover:text-white">About Verisight</button></li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Fitur Verifikasi</h4>
+                                <ul className="space-y-2 text-xs text-slate-400 font-medium">
+                                    <li><span>Analisis Tangkapan Layar OCR</span></li>
+                                    <li><span>Pemeriksaan Pernyataan Teks</span></li>
+                                    <li><span>Verifikasi Tautan Artikel</span></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="pt-8 border-t border-navy-800 text-center text-xs text-slate-500">
+                            <p>© 2026 VERISIGHT. Seluruh Hak Cipta Dilindungi.</p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        }
+
+        // ---------- MAIN APP ----------
+        function App() {
+            const { route, navigate } = useRouter();
+            const [lastAnalysis, setLastAnalysis] = useState(null);
+
+            useEffect(() => {
+                window.scrollTo(0, 0);
+            }, [route]);
+
+            const renderPage = () => {
+                switch (route) {
+                    case '/':
+                    case '':
+                        return <CheckPage navigate={navigate} setLastAnalysis={setLastAnalysis} />;
+                    case '/check/result':
+                        return <AnalysisResult navigate={navigate} lastAnalysis={lastAnalysis} />;
+                    case '/about':
+                        return <AboutPage navigate={navigate} />;
+                    case '/literacy':
+                        return <LiteracyPage navigate={navigate} />;
+                    case '/literacy/detail':
+                        return <LiteracyDetailPage navigate={navigate} />;
+                    case '/quiz':
+                        return <QuizPage navigate={navigate} />;
+                    default:
+                        return <CheckPage navigate={navigate} setLastAnalysis={setLastAnalysis} />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col justify-between">
+                    <div>
+                        <Navigation route={route} navigate={navigate} />
+                        <main>
+                            {renderPage()}
+                        </main>
+                    </div>
+                    <Footer navigate={navigate} />
+                </div>
+            );
+        }
+
+        // ---------- RENDER ----------
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </body>
+
 </html>
+{% endraw %}

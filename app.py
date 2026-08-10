@@ -11,12 +11,31 @@ import google.generativeai as genai
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Menggunakan model yang sudah teruji aktif
-model = genai.GenerativeModel('gemma-4-26b-a4b-it')
+# Menggunakan model yang teruji aktif dengan fallback
+PRIMARY_MODEL_NAME = 'gemini-flash-latest'
+FALLBACK_MODEL_NAME = 'gemma-4-26b-a4b-it'
+
+def get_ai_model():
+    try:
+        return genai.GenerativeModel(PRIMARY_MODEL_NAME)
+    except Exception:
+        return genai.GenerativeModel(FALLBACK_MODEL_NAME)
+
+model = get_ai_model()
 
 app = Flask(__name__)
 
 # 2. FUNGSI PEMBANTU: WEB SCRAPING
+def perbaiki_tautan_html(html_text):
+    """Memastikan seluruh atribut href pada tag <a> diawali dengan https://"""
+    def sanitize_url(match):
+        url = match.group(1).strip()
+        if url and not url.startswith('http://') and not url.startswith('https://'):
+            url = 'https://' + url
+        return f'href="{url}"'
+
+    return re.sub(r'href=["\']([^"\']+)["\']', sanitize_url, html_text)
+
 def ambil_teks_dari_link(url):
     """Membaca isi teks dari sebuah halaman web."""
     try:
@@ -60,34 +79,66 @@ def analyze_text():
     waktu_sekarang = datetime.datetime.now().strftime("%d %B %Y")
 
     prompt = f"""
-    Kamu adalah asisten literasi digital di aplikasi Verisight. 
-    Tugasmu mengajari pengguna cara berpikir kritis dalam memverifikasi informasi.
+    Kamu adalah analis fakta terpercaya dan asisten literasi digital senior di aplikasi Verisight. 
+    Berikan analisis mendalam, obyektif, dan menyeluruh mengenai klaim berikut ini:
 
-    [KONTEKS WAKTU PENTING]: 
-    Saat ini adalah tanggal {waktu_sekarang}. Jadikan tanggal ini sebagai acuan realitas mutlakmu.
-    
-    Analisis klaim atau teks berikut ini:
+    [KONTEN UNTUK DIANALISIS]:
     "{teks_untuk_dianalisis}"
-    
-    ATURAN:
-    Berikan hasil akhir menggunakan format HTML di bawah ini.
-    
-    <p class="mb-4">Halo! Saya asisten literasi digital Anda dari <strong>Verisight</strong>. Mari kita bedah informasi tersebut bersama-sama:</p>
-    
-    <ul class="list-disc pl-5 space-y-3 mb-6">
-        <li><strong>Inti Informasi:</strong> <br> [Jelaskan singkat isinya]</li>
-        <li><strong>Sumber:</strong> <br> [Sebutkan sumbernya]</li>
-        <li><strong>Tingkat Kredibilitas:</strong> <br> <span class="font-bold text-blue-600">[Tinggi / Sedang / Rendah]</span></li>
-        <li><strong>Analisis Kritis:</strong> <br> [Jelaskan mengapa ini mencurigakan atau patut dipercaya berdasarkan logika]</li>
-    </ul>
 
-    <div class="bg-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
-        <strong>💡 Tips Verisight:</strong> [Tips menghindari hoaks terkait topik ini]
+    [KONTEKS WAKTU HARI INI]:
+    {waktu_sekarang}.
+
+    TUGAS UTAMA:
+    1. Bedah klaim ini secara kritis dan mendalam. Jangan hanya memberikan jawaban singkat. Berikan pembuktian fakta yang kuat berdasarkan data/fakta yang diketahui hingga saat ini.
+    2. Identifikasi apakah klaim ini merupakan: FAKTA VALID, DISINFORMASI / HOAKS, MENYESATKAN (MISLEADING), atau PERLU KONFIRMASI SUMBER RESMI.
+    3. Sangat Penting: Sediakan TAUTAN REFERENSI BERITA BUKTI REAL / REFERENSI RESMI (seperti ke https://turnbackhoax.id, https://www.kompas.com, https://www.detik.com, https://www.antaranews.com, https://www.cnnindonesia.com, https://www.cnbcindonesia.com, atau situs kementerian/lembaga resmi .go.id) yang relevan dengan topik klaim ini. SETIAP ALAMAT HREF SAAT MENULIS TAG <a href="..."> WAJIB DIAWALI DENGAN PROTOKOL LENGKAP "https://" (misal: href="https://www.cnbcindonesia.com/..." atau href="https://www.google.com/search?q=..."). DILARANG KERAS MENULIS href="www.domain.com" TANPA HTTPS://.
+    4. JANGAN GUNAKAN EMOTICON ATAU EMOJI APAPUN. Gunakan teks baku dan rapi.
+    5. Gunakan format HTML yang rapi di bawah ini tanpa tag markdown ```html:
+
+    <p class="mb-4 text-slate-800 text-sm leading-relaxed">Halo! Saya asisten literasi digital Anda dari <strong>Verisight</strong>. Berikut adalah hasil penelusuran mendalam dan analisis fakta terhadap klaim yang Anda kirimkan:</p>
+
+    <div class="space-y-4 mb-6">
+        <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-navy-900 text-sm mb-1">Ringkasan Klaim & Subjek Utama</h4>
+            <p class="text-slate-600 text-xs leading-relaxed">[Jelaskan klaim utama yang diuji secara jernih dan mendalam]</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-navy-900 text-sm mb-1">Tingkat Kredibilitas & Status Verifikasi</h4>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">[Label Kredibilitas: Fakta Valid / Disinformasi / Menyesatkan / Perlu Verifikasi]</span>
+            </div>
+            <p class="text-slate-600 text-xs leading-relaxed mt-2">[Penjelasan mengapa kredibilitas tersebut diberikan]</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-navy-900 text-sm mb-1">Analisis Mendalam & Pembuktian Fakta</h4>
+            <p class="text-slate-600 text-xs leading-relaxed mb-2">[Sajikan kronologi, fakta sebenarnya, atau bantahan ilmiah/jurnalistik secara detail]</p>
+        </div>
+
+        <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200">
+            <h4 class="font-bold text-primary-900 text-sm mb-2">Referensi Berita & Kanal Cek Fakta Resmi</h4>
+            <p class="text-xs text-slate-600 mb-2">Berikut adalah tautan rujukan berita dan kanal verifikasi resmi terkait isu ini:</p>
+            <ul class="list-disc pl-5 space-y-1.5 text-xs text-primary-700">
+                <li><a href="[URL_RELEVAN_1]" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">[Judul Artikel Berita / Laporan Cek Fakta 1]</a> - [Keterangan singkat]</li>
+                <li><a href="[URL_RELEVAN_2]" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">[Judul Artikel Berita / Laporan Cek Fakta 2]</a> - [Keterangan singkat]</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-primary-50 p-4 rounded-xl border-l-4 border-primary-600 text-xs text-primary-900">
+        <strong>Tips Nalar Kritis Verisight:</strong> [Berikan saran spesifik bagi pengguna saat menemui klaim sejenis]
     </div>
     """
 
     try:
-        response = model.generate_content(prompt)
+        try:
+            response = model.generate_content(prompt)
+        except Exception as primary_err:
+            print(f"[*] Primary model failed: {primary_err}. Trying fallback model...")
+            fallback = genai.GenerativeModel(FALLBACK_MODEL_NAME)
+            response = fallback.generate_content(prompt)
+
         hasil_mentah = response.text
 
         # --- LOGIKA BARU: MEMISAHKAN THINKING PROCESS ---
@@ -106,6 +157,7 @@ def analyze_text():
             hasil_bersih = hasil_bersih[hasil_bersih.find('<p'):]
 
         hasil_bersih = hasil_bersih.strip()
+        hasil_bersih = perbaiki_tautan_html(hasil_bersih)
 
         # 4. Mengirimkan KEDUA data tersebut ke halaman web
         return jsonify({
