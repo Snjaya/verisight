@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verisight - Platform Cek Fakta</title>
+    <!-- Mengimpor Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8 font-sans flex flex-col items-center">
+
+    <!-- Container Utama -->
+    <div class="max-w-3xl w-full bg-white p-8 rounded-2xl shadow-xl mt-10">
+        <h1 class="text-4xl font-extrabold text-blue-600 mb-2 text-center tracking-tight">Verisight</h1>
+        <p class="text-gray-500 mb-8 text-center text-lg">
+            Belajar verifikasi informasi dan tingkatkan literasi digitalmu.
+        </p>
+
+        <!-- Area Input -->
+        <div class="mb-6">
+            <label for="newsInput" class="block text-gray-700 font-bold mb-2">
+                Masukkan Teks Berita atau Tempel Link URL Artikel:
+            </label>
+            <textarea id="newsInput" rows="5" 
+                class="w-full border-2 border-gray-200 p-4 rounded-lg focus:outline-none focus:border-blue-500 transition resize-y" 
+                placeholder="Tempel teks mencurigakan atau link berita di sini..."></textarea>
+        </div>
+
+        <button id="checkButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-300 shadow-md">
+            Analisis Informasi
+        </button>
+
+        <!-- Indikator Loading -->
+        <div id="loadingArea" class="hidden text-center mt-8 p-4">
+            <p class="text-blue-600 font-semibold animate-pulse flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                AI sedang menganalisis data...
+            </p>
+        </div>
+
+        <!-- Area Hasil Analisis -->
+        <div id="resultArea" class="hidden mt-8 p-6 bg-white border border-gray-100 shadow-inner rounded-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Hasil Analisis Pembelajaran:</h3>
+            <!-- Konten dari AI akan dimuat di sini -->
+            <div id="aiResponse" class="text-gray-700 leading-relaxed"></div>
+        </div>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script>
+        const checkButton = document.getElementById('checkButton');
+        const newsInput = document.getElementById('newsInput');
+        const loadingArea = document.getElementById('loadingArea');
+        const resultArea = document.getElementById('resultArea');
+        const aiResponse = document.getElementById('aiResponse');
+
+        checkButton.addEventListener('click', async () => {
+            const textToAnalyze = newsInput.value.trim();
+            
+            if (!textToAnalyze) {
+                alert("Tolong masukkan teks berita atau link terlebih dahulu!");
+                return;
+            }
+
+            // Tampilkan loading, sembunyikan hasil sebelumnya
+            loadingArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            checkButton.disabled = true;
+            checkButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: textToAnalyze })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Masukkan hasil HTML dari AI ke dalam div
+                    aiResponse.innerHTML = data.result;
+                    resultArea.classList.remove('hidden');
+                } else {
+                    alert("Terjadi kesalahan: " + data.error);
+                }
+            } catch (error) {
+                alert("Gagal terhubung ke server. Pastikan server Flask berjalan.");
+            } finally {
+                // Matikan loading, kembalikan tombol
+                loadingArea.classList.add('hidden');
+                checkButton.disabled = false;
+                checkButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>
