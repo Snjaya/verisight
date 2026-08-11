@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verisight - Platform Cek Fakta</title>
-    <!-- Mengimpor Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen p-8 font-sans flex flex-col items-center">
 
-    <!-- Container Utama -->
     <div class="max-w-3xl w-full bg-white p-8 rounded-2xl shadow-xl mt-10">
         <h1 class="text-4xl font-extrabold text-blue-600 mb-2 text-center tracking-tight">Verisight</h1>
         <p class="text-gray-500 mb-8 text-center text-lg">
@@ -17,80 +15,121 @@
         </p>
 
         <!-- Area Input -->
-        <div class="mb-6">
-            <label for="newsInput" class="block text-gray-700 font-bold mb-2">
-                Masukkan Teks Berita atau Tempel Link URL Artikel:
-            </label>
-            <textarea id="newsInput" rows="5" 
-                class="w-full border-2 border-gray-200 p-4 rounded-lg focus:outline-none focus:border-blue-500 transition resize-y" 
-                placeholder="Tempel teks mencurigakan atau link berita di sini..."></textarea>
+        <div class="mb-6 space-y-4">
+            <div>
+                <label for="newsInput" class="block text-gray-700 font-bold mb-2">
+                    Ketik Teks, Tempel Link, atau Kosongkan jika hanya ingin menganalisis gambar:
+                </label>
+                <textarea id="newsInput" rows="4" 
+                    class="w-full border-2 border-gray-200 p-4 rounded-lg focus:outline-none focus:border-blue-500 transition resize-y" 
+                    placeholder="Tempel teks atau link berita di sini..."></textarea>
+            </div>
+            
+            <!-- Fitur Baru: Input File Gambar -->
+            <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg text-center hover:bg-gray-50 transition">
+                <label for="imageInput" class="cursor-pointer flex flex-col items-center justify-center">
+                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="text-gray-600 font-semibold">Klik untuk mengunggah gambar (Opsional)</span>
+                    <span class="text-sm text-gray-400 mt-1">Format didukung: JPG, PNG, WEBP</span>
+                </label>
+                <input type="file" id="imageInput" class="hidden" accept="image/jpeg, image/png, image/webp">
+                <!-- Tempat menampilkan nama file yang dipilih -->
+                <p id="fileNameDisplay" class="text-sm text-blue-600 font-bold mt-2 hidden"></p>
+            </div>
         </div>
 
         <button id="checkButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-300 shadow-md">
             Analisis Informasi
         </button>
 
-        <!-- Indikator Loading -->
         <div id="loadingArea" class="hidden text-center mt-8 p-4">
-            <p class="text-blue-600 font-semibold animate-pulse flex items-center justify-center gap-2">
-                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                AI sedang menganalisis data...
-            </p>
+            <p class="text-blue-600 font-semibold animate-pulse">AI sedang menganalisis data...</p>
         </div>
 
-        <!-- Area Hasil Analisis -->
-        <div id="resultArea" class="hidden mt-8 p-6 bg-white border border-gray-100 shadow-inner rounded-lg">
-            <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Hasil Analisis Pembelajaran:</h3>
-            <!-- Konten dari AI akan dimuat di sini -->
-            <div id="aiResponse" class="text-gray-700 leading-relaxed"></div>
+        <div id="resultContainer" class="hidden mt-8 space-y-6">
+            <div class="p-6 bg-white border border-gray-100 shadow-inner rounded-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">Hasil Analisis Pembelajaran:</h3>
+                <div id="aiResponse" class="text-gray-700 leading-relaxed"></div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg">
+                <button id="toggleThinking" class="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition rounded-lg">
+                    <span class="font-semibold text-gray-700">Lihat Proses Berpikir AI</span>
+                    <svg id="arrowIcon" class="w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="thinkingContent" class="hidden p-4 bg-gray-900 text-green-400 font-mono text-sm rounded-b-lg overflow-x-auto whitespace-pre-wrap"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Script JavaScript -->
     <script>
         const checkButton = document.getElementById('checkButton');
         const newsInput = document.getElementById('newsInput');
+        const imageInput = document.getElementById('imageInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
         const loadingArea = document.getElementById('loadingArea');
-        const resultArea = document.getElementById('resultArea');
+        const resultContainer = document.getElementById('resultContainer');
         const aiResponse = document.getElementById('aiResponse');
+        const toggleThinking = document.getElementById('toggleThinking');
+        const thinkingContent = document.getElementById('thinkingContent');
+        const arrowIcon = document.getElementById('arrowIcon');
+
+        // Menampilkan nama file saat pengguna memilih gambar
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = "File terpilih: " + e.target.files[0].name;
+                fileNameDisplay.classList.remove('hidden');
+            } else {
+                fileNameDisplay.classList.add('hidden');
+            }
+        });
+
+        toggleThinking.addEventListener('click', () => {
+            thinkingContent.classList.toggle('hidden');
+            arrowIcon.classList.toggle('rotate-180');
+        });
 
         checkButton.addEventListener('click', async () => {
             const textToAnalyze = newsInput.value.trim();
+            const file = imageInput.files[0];
             
-            if (!textToAnalyze) {
-                alert("Tolong masukkan teks berita atau link terlebih dahulu!");
+            if (!textToAnalyze && !file) {
+                alert("Tolong masukkan teks berita atau pilih gambar terlebih dahulu!");
                 return;
             }
 
-            // Tampilkan loading, sembunyikan hasil sebelumnya
             loadingArea.classList.remove('hidden');
-            resultArea.classList.add('hidden');
+            resultContainer.classList.add('hidden');
             checkButton.disabled = true;
-            checkButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // Menggunakan FormData untuk mengirim kombinasi Teks dan File sekaligus
+            const formData = new FormData();
+            if (textToAnalyze) formData.append('text', textToAnalyze);
+            if (file) formData.append('image', file);
 
             try {
+                // Perhatikan: Kita tidak perlu mengatur 'Content-Type' secara manual saat menggunakan FormData
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: textToAnalyze })
+                    body: formData
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Masukkan hasil HTML dari AI ke dalam div
                     aiResponse.innerHTML = data.result;
-                    resultArea.classList.remove('hidden');
+                    thinkingContent.textContent = data.thinking;
+                    resultContainer.classList.remove('hidden');
+                    thinkingContent.classList.add('hidden');
+                    arrowIcon.classList.remove('rotate-180');
                 } else {
                     alert("Terjadi kesalahan: " + data.error);
                 }
             } catch (error) {
-                alert("Gagal terhubung ke server. Pastikan server Flask berjalan.");
+                alert("Gagal terhubung ke server.");
             } finally {
-                // Matikan loading, kembalikan tombol
                 loadingArea.classList.add('hidden');
                 checkButton.disabled = false;
-                checkButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
     </script>
