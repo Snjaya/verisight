@@ -32,16 +32,36 @@ def perbaiki_tautan_html(html_text):
 
     return re.sub(r'href=["\']([^"\']+)["\']', sanitize_url, html_text)
 
+def extract_keywords_from_url(url):
+    try:
+        path = urllib.parse.urlparse(url).path
+        slug = re.sub(r'[/_\-\d]', ' ', path)
+        words = [w for w in slug.split() if len(w) > 2 and w.lower() not in {'read', 'tren', 'news', 'berita', 'article', 'html', 'php', 'index'}]
+        return " ".join(words[:8])
+    except:
+        return ""
+
 def ambil_teks_dari_link(url):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        respons = requests.get(url, headers=headers, timeout=10)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+            'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        respons = requests.get(url, headers=headers, timeout=10, verify=False)
         if respons.status_code == 200:
             soup = BeautifulSoup(respons.text, 'html.parser')
-            return soup.get_text(separator=' ', strip=True)[:3000]
-        return "ERROR_LINK"
+            judul = soup.title.string.strip() if soup.title and soup.title.string else ""
+            paragraphs = [p.get_text().strip() for p in soup.find_all('p') if len(p.get_text().strip()) > 30]
+            if paragraphs:
+                teks = " ".join(paragraphs)[:3000]
+            else:
+                teks = soup.get_text(separator=' ', strip=True)[:3000]
+            return judul, teks
+        return None, "ERROR_LINK"
     except:
-        return "ERROR_LINK"
+        return None, "ERROR_LINK"
 
 def extract_search_keywords(teks_input):
     stopwords = {
@@ -50,7 +70,8 @@ def extract_search_keywords(teks_input):
         'akan', 'telah', 'ada', 'bisa', 'juga', 'sudah', 'merupakan', 'adalah', 'rabu', 
         'kamis', 'senin', 'selasa', 'jumat', 'sabtu', 'minggu', 'januari', 'februari', 
         'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 
-        'november', 'desember', 'tolong', 'analisis', 'periksa', 'fakta'
+        'november', 'desember', 'tolong', 'analisis', 'periksa', 'fakta', 'kompas', 
+        'detik', 'antara', 'berita', 'terbaru', 'baca', 'halaman'
     }
     clean_text = re.sub(r'[^\w\s]', ' ', teks_input)
     words = clean_text.split()
@@ -162,14 +183,29 @@ def analyze_text():
             image_bytes = file_gambar.read()
             gambar_diproses = Image.open(io.BytesIO(image_bytes))
             teks_untuk_dianalisis = input_pengguna if input_pengguna else "Tolong analisis gambar ini, baca teks di dalamnya, dan periksa fakta dari informasi tersebut."
+            if input_pengguna:
+                referensi_internet = cari_referensi_internet(input_pengguna)
+            else:
+                referensi_internet = "Menganalisis data dari gambar langsung."
         except Exception as e:
             return jsonify({"error": "Format gambar tidak didukung atau rusak."}), 400
 
     elif input_pengguna.startswith('http://') or input_pengguna.startswith('https://'):
-        hasil_scraping = ambil_teks_dari_link(input_pengguna)
-        if hasil_scraping == "ERROR_LINK":
-            return jsonify({"error": "Gagal membaca isi link. Pastikan link aktif."}), 400
-        teks_untuk_dianalisis = hasil_scraping
+        judul_halaman, hasil_scraping = ambil_teks_dari_link(input_pengguna)
+        
+        if hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 50:
+            teks_untuk_dianalisis = f"URL Tautan Artikel Pengguna: {input_pengguna}\n" + (f"Judul Artikel: {judul_halaman}\n" if judul_halaman else "") + f"Isi Teks Artikel:\n{hasil_scraping}"
+            query_search = judul_halaman if judul_halaman else hasil_scraping[:200]
+        else:
+            url_keywords = extract_keywords_from_url(input_pengguna)
+            teks_untuk_dianalisis = f"URL Tautan Pengguna: {input_pengguna}\nTopik Artikel (dikategori dari Tautan): {url_keywords}"
+            query_search = url_keywords if url_keywords else input_pengguna
+
+        # MULTI-ENGINE RELATED NEWS SEARCH FOR LINK MODE
+        referensi_terkait = cari_referensi_internet(query_search)
+        
+        referensi_utama = f"Referensi Utama (Tautan Pengguna):\n- Judul: {judul_halaman if (judul_halaman and hasil_scraping != 'ERROR_LINK') else 'Artikel Tautan Pengguna'}\n- Link: {input_pengguna}\n- Ringkasan: Halaman artikel berita spesifik yang dikirim oleh pengguna.\n\n"
+        referensi_internet = referensi_utama + referensi_terkait
     else:
         referensi_internet = cari_referensi_internet(input_pengguna)
 
@@ -198,14 +234,14 @@ def analyze_text():
 - Gunakan data [Referensi Web] secara optimal untuk memverifikasi kebenaran klaim, atau untuk memberikan informasi relevan terkini tentang topik tersebut.
 
 [ATURAN WAJIB REFERENSI URL & LINK ASLI]
-1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS asli (`Link`) dan Judul (`Judul`) nyata dari daftar [Referensi Web] di bawah dan memasukkannya ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Asli</a>`.
-2. DILARANG KERAS menyisakan placeholder seperti `[URL_HTTPS]` atau `[Judul Referensi]`.
-3. Tampilkan setidaknya 2 hingga 4 tautan referensi berita/sumber asli yang ada di data Referensi Web. Jika tidak ada berita yang cocok 100% dengan klaim spesifik, cantumkan tautan referensi berita/informasi umum terkait subjek tersebut yang ada di data Referensi Web agar pengguna mendapatkan sumber informasi nyata yang bermanfaat.
+1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS artikel berita spesifik dan lengkap (`Link`) dari data [Referensi Web] ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Artikel Asli</a>`.
+2. DILARANG KERAS mencantumkan link ke Halaman Utama / Domain Utama media berita umum saja (seperti `https://kompas.com`, `https://detik.com`, `https://news.kompas.com`, `https://antara.id`). Kamu HARUS menggunakan URL artikel spesifik dan lengkap!
+3. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel spesifik dari data Referensi Web (termasuk artikel tautan utama pengguna dan berita pembanding/berita terkait dari media lain).
 
 [DATA]
 Waktu Acuan Hari Ini: {waktu_sekarang_universal}
 Referensi Web: {referensi_internet}
-Klaim Pengguna: "{teks_untuk_dianalisis}"
+Klaim / Artikel Pengguna: "{teks_untuk_dianalisis}"
 
 [ATURAN WAJIB OUTPUT]
 Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. JANGAN gunakan tag markdown ```html.
