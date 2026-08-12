@@ -183,7 +183,7 @@
                     inputTitle = rawFile.name;
                 } else if (activeTab === 'url') {
                     if (!urlInput.trim()) return;
-                    formData.append('text', urlInput.trim());
+                    formData.append('url', urlInput.trim()); // Diperbarui untuk URL
                     inputTitle = urlInput.trim();
                 } else {
                     if (!textInput.trim()) return;
