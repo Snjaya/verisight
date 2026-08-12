@@ -3,6 +3,8 @@ import requests
 import datetime
 import re
 import io
+import urllib.parse
+import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
@@ -41,19 +43,101 @@ def ambil_teks_dari_link(url):
     except:
         return "ERROR_LINK"
 
+def extract_search_keywords(teks_input):
+    stopwords = {
+        'di', 'pada', 'yang', 'saat', 'melintas', 'dini', 'hari', 'dan', 'ke', 'dari', 
+        'ini', 'itu', 'terjadi', 'dalam', 'dengan', 'untuk', 'atau', 'oleh', 'karena', 
+        'akan', 'telah', 'ada', 'bisa', 'juga', 'sudah', 'merupakan', 'adalah', 'rabu', 
+        'kamis', 'senin', 'selasa', 'jumat', 'sabtu', 'minggu', 'januari', 'februari', 
+        'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 
+        'november', 'desember', 'tolong', 'analisis', 'periksa', 'fakta'
+    }
+    clean_text = re.sub(r'[^\w\s]', ' ', teks_input)
+    words = clean_text.split()
+    filtered = [w for w in words if w.lower() not in stopwords]
+    if len(filtered) >= 3:
+        return " ".join(filtered[:8])
+    return " ".join(words[:8]) if words else teks_input[:60]
+
 def cari_referensi_internet(teks_input):
+    hasil_referensi = []
+    links_seen = set()
+    
+    query = extract_search_keywords(teks_input)
+    
+    # 1. UTAMA: GOOGLE NEWS RSS (Super cepat, kebal blokir ISP Indonesia, media nasional & lokal)
     try:
-        kata_kunci = teks_input[:100]
-        hasil_ddg = DDGS().text(kata_kunci, max_results=3)
-        if not hasil_ddg: 
-            return "Tidak ditemukan referensi langsung di internet."
-        
-        hasil_pencarian_teks = ""
-        for i, hasil in enumerate(hasil_ddg):
-            hasil_pencarian_teks += f"Referensi {i+1}:\n- Judul: {hasil['title']}\n- Link: {hasil['href']}\n- Ringkasan: {hasil['body']}\n\n"
-        return hasil_pencarian_teks
-    except:
-        return "Gagal mengambil data dari mesin pencari."
+        url_gnews = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=id&gl=ID&ceid=ID:id"
+        r = requests.get(url_gnews, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}, timeout=6)
+        if r.status_code == 200:
+            root = ET.fromstring(r.text)
+            items = root.findall('.//item')
+            for item in items[:6]:
+                title = item.find('title').text if item.find('title') is not None else ''
+                link = item.find('link').text if item.find('link') is not None else ''
+                pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
+                if link and link not in links_seen:
+                    links_seen.add(link)
+                    sumber = title.split(' - ')[-1] if ' - ' in title else 'Media Berita'
+                    hasil_referensi.append({
+                        'title': title,
+                        'href': link,
+                        'body': f"Berita resmi dari {sumber}. Dipublikasikan pada {pub_date}."
+                    })
+    except Exception as e:
+        print(f"Google News RSS error: {e}")
+
+    # 2. SEKUNDER: DUCKDUCKGO (Handling SSL/DNS Exception jika diblokir ISP)
+    try:
+        ddgs = DDGS()
+        hasil_ddg = list(ddgs.text(query, max_results=5))
+        for hasil in hasil_ddg:
+            href = hasil.get('href', '')
+            title = hasil.get('title', 'Sumber Berita')
+            body = hasil.get('body', '')
+            if href and href not in links_seen:
+                links_seen.add(href)
+                hasil_referensi.append({
+                    'title': title,
+                    'href': href,
+                    'body': body
+                })
+    except Exception as e:
+        print(f"DuckDuckGo error: {e}")
+
+    # 3. FALLBACK BROADER QUERY (3 kata entitas kunci utama)
+    if not hasil_referensi:
+        try:
+            words = [w for w in re.sub(r'[^\w\s]', ' ', teks_input).split() if len(w) > 3]
+            query_broad = " ".join(words[:3]) if words else teks_input[:30]
+            url_broad = f"https://news.google.com/rss/search?q={urllib.parse.quote(query_broad)}&hl=id&gl=ID&ceid=ID:id"
+            r = requests.get(url_broad, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}, timeout=6)
+            if r.status_code == 200:
+                root = ET.fromstring(r.text)
+                items = root.findall('.//item')
+                for item in items[:5]:
+                    title = item.find('title').text if item.find('title') is not None else ''
+                    link = item.find('link').text if item.find('link') is not None else ''
+                    pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
+                    if link and link not in links_seen:
+                        links_seen.add(link)
+                        sumber = title.split(' - ')[-1] if ' - ' in title else 'Media Berita'
+                        hasil_referensi.append({
+                            'title': title,
+                            'href': link,
+                            'body': f"Laporan berita terkait topik {query_broad} dari {sumber}. Dipublikasikan: {pub_date}"
+                        })
+        except Exception as e:
+            print(f"Broad search error: {e}")
+
+    if not hasil_referensi:
+        return "Tidak ditemukan referensi langsung di internet."
+
+    hasil_pencarian_teks = ""
+    for i, ref in enumerate(hasil_referensi[:6]):
+        hasil_pencarian_teks += f"Referensi {i+1}:\n- Judul: {ref['title']}\n- Link: {ref['href']}\n- Ringkasan: {ref['body']}\n\n"
+    
+    return hasil_pencarian_teks
 
 # 3. RUTE HALAMAN UTAMA
 @app.route('/')
@@ -89,13 +173,37 @@ def analyze_text():
     else:
         referensi_internet = cari_referensi_internet(input_pengguna)
 
-    waktu_sekarang = datetime.datetime.now().strftime("%d %B %Y")
+    now = datetime.datetime.now()
+    bulan_indo = {
+        1: 'Januari', 2: 'Februari', 3: 'Maret', 4: 'April',
+        5: 'Mei', 6: 'Juni', 7: 'Juli', 8: 'Agustus',
+        9: 'September', 10: 'Oktober', 11: 'November', 12: 'Desember'
+    }
+    waktu_iso = now.strftime("%Y-%m-%d")
+    waktu_en = now.strftime("%d %B %Y")
+    waktu_id = f"{now.day} {bulan_indo[now.month]} {now.year}"
+    waktu_sekarang_universal = f"{waktu_id} / {waktu_en} (ISO: {waktu_iso})"
 
-    # PROMPT SEDERHANA TANPA ATURAN PEMOTONGAN KARENA SDK AKAN MENGURUSNYA
+    # PROMPT DENGAN UNIVERSAL TEMPORAL ANCHOR & DEDICATED LINK INJECTION DIRECTIVES
     prompt = f"""Tugasmu HANYA mengevaluasi apakah klaim ini FAKTA VALID, DISINFORMASI / HOAKS, atau MENYESATKAN.
 
+[ACUAN WAKTU SEKARANG / UNIVERSAL TEMPORAL ANCHOR WAJIB]
+- HARI INI / WAKTU SEKARANG ADALAH: {waktu_sekarang_universal} (Tahun {now.year}).
+- PENTING: Pahami dan adaptasi berbagai format tanggal secara universal dalam bahasa apa pun (Bahasa Indonesia, English, format ISO: {waktu_iso}, dsb.) sebagai MASA KINI (PRESENT TIME / WAKTU SEKARANG).
+- Setiap kejadian atau klaim bertanggal {now.year} atau sebelum/sama dengan {waktu_iso} ADALAH MASA KINI ATAU MASA LALU (PRESENT/PAST), BUKAN MASA DEPAN.
+- JANGAN PERNAH menyimpulkan bahwa tanggal dalam format apapun (misal: "{waktu_en}", "{waktu_id}", "{waktu_iso}") yang sesuai dengan waktu sekarang adalah "masa depan" atau menganggap klaim sebagai hoaks/disinformasi hanya karena bertanggal hari ini/tahun {now.year}.
+
+[PETUNJUK ANALISIS SUNGGUH-SUNGGUH & PENCARIAN MANDIRI]
+- Jangan langsung menyimpulkan klaim "Rendah" atau "Tidak Ada Referensi" secara terburu-buru. Analisis subjek utama, lokasi, dan latar belakang klaim secara mendalam.
+- Gunakan data [Referensi Web] secara optimal untuk memverifikasi kebenaran klaim, atau untuk memberikan informasi relevan terkini tentang topik tersebut.
+
+[ATURAN WAJIB REFERENSI URL & LINK ASLI]
+1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS asli (`Link`) dan Judul (`Judul`) nyata dari daftar [Referensi Web] di bawah dan memasukkannya ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Asli</a>`.
+2. DILARANG KERAS menyisakan placeholder seperti `[URL_HTTPS]` atau `[Judul Referensi]`.
+3. Tampilkan setidaknya 2 hingga 4 tautan referensi berita/sumber asli yang ada di data Referensi Web. Jika tidak ada berita yang cocok 100% dengan klaim spesifik, cantumkan tautan referensi berita/informasi umum terkait subjek tersebut yang ada di data Referensi Web agar pengguna mendapatkan sumber informasi nyata yang bermanfaat.
+
 [DATA]
-Waktu: {waktu_sekarang}
+Waktu Acuan Hari Ini: {waktu_sekarang_universal}
 Referensi Web: {referensi_internet}
 Klaim Pengguna: "{teks_untuk_dianalisis}"
 
@@ -107,7 +215,7 @@ Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. J
 <div class="space-y-4 mb-6">
     <div class="bg-white p-4 rounded-xl border border-slate-200">
         <h4 class="font-bold text-navy-900 text-sm mb-1">Ringkasan Klaim & Subjek Utama</h4>
-        <p class="text-slate-600 text-xs leading-relaxed">[Jelaskan klaim utama dengan padat]</p>
+        <p class="text-slate-600 text-xs leading-relaxed">[Jelaskan klaim utama dengan padat dan teliti]</p>
     </div>
 
     <div class="bg-white p-4 rounded-xl border border-slate-200">
@@ -115,18 +223,18 @@ Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. J
         <div class="flex items-center gap-2 mt-1 mb-2">
             <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">[Pilih: Fakta Valid / Disinformasi / Menyesatkan / Perlu Verifikasi]</span>
         </div>
-        <p class="text-slate-600 text-xs leading-relaxed">[Alasan singkat penentuan status]</p>
+        <p class="text-slate-600 text-xs leading-relaxed">[Alasan komprehensif penentuan status]</p>
     </div>
 
     <div class="bg-white p-4 rounded-xl border border-slate-200">
         <h4 class="font-bold text-navy-900 text-sm mb-1">Analisis Mendalam & Pembuktian Fakta</h4>
-        <p class="text-slate-600 text-xs leading-relaxed mb-2">[Bantahan atau konfirmasi berdasarkan bukti nyata]</p>
+        <p class="text-slate-600 text-xs leading-relaxed mb-2">[Penjelasan mendalam, pembuktian fakta, dan konteks latar belakang topik]</p>
     </div>
 
     <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200">
         <h4 class="font-bold text-primary-900 text-sm mb-2">Referensi Berita & Kanal Cek Fakta Resmi</h4>
         <ul class="list-disc pl-5 space-y-1.5 text-xs text-primary-700">
-            <li><a href="[URL_HTTPS]" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">[Judul Referensi]</a></li>
+            <li><a href="URL_ASLI_DARI_REFERENSI_WEB" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Referensi Asli</a></li>
         </ul>
     </div>
 </div>
