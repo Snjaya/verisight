@@ -1,0 +1,8 @@
+flask
+python-dotenv
+google-genai
+duckduckgo-search
+beautifulsoup4
+requests
+pillow
+gunicorn
