@@ -61,32 +61,58 @@ def perbaiki_warna_status_badge(html_text):
 def extract_keywords_from_url(url):
     try:
         path = urllib.parse.urlparse(url).path
-        slug = re.sub(r'[/_\-\d]', ' ', path)
-        words = [w for w in slug.split() if len(w) > 2 and w.lower() not in {'read', 'tren', 'news', 'berita', 'article', 'html', 'php', 'index'}]
+        query = urllib.parse.urlparse(url).query
+        raw_slug = path + ' ' + query
+        raw_slug = re.sub(r'(comments|status|posts|videos|reels|story\.php|fbid|photo\.php|watch|user|bisnis|amp|read|tren|news|berita|article|html|php|index)', ' ', raw_slug, flags=re.IGNORECASE)
+        raw_slug = re.sub(r'[/_\-\d\?=&\.]', ' ', raw_slug)
+        words = [w for w in raw_slug.split() if len(w) > 2 and w.lower() not in {
+            'com', 'https', 'http', 'www', 'share', 'utm', 'source', 'medium', 'id', 'en'
+        }]
         return " ".join(words[:8])
     except:
         return ""
 
 def ambil_teks_dari_link(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
+    }
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    
+    is_social_media = any(domain in url.lower() for domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com', 'fb.watch', 'tiktok.com', 'reddit.com'])
+    platform_name = "Media Sosial"
+    if 'x.com' in url or 'twitter.com' in url: platform_name = "X (Twitter)"
+    elif 'instagram.com' in url: platform_name = "Instagram"
+    elif 'facebook.com' in url or 'fb.watch' in url: platform_name = "Facebook"
+    elif 'tiktok.com' in url: platform_name = "TikTok"
+    elif 'reddit.com' in url: platform_name = "Reddit"
+
+    # A. SCRAPING DEDIKASI UNTUK UNGGAHAN MEDIA SOSIAL (META TAGS + SLUG)
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7'
-        }
-        import urllib3
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         respons = requests.get(url, headers=headers, timeout=5, verify=False)
         if respons.status_code == 200:
             soup = BeautifulSoup(respons.text, 'html.parser')
-            judul = soup.title.string.strip() if soup.title and soup.title.string else ""
+            
+            og_title = soup.find('meta', attrs={'property': 'og:title'}) or soup.find('meta', attrs={'name': 'twitter:title'})
+            og_desc = soup.find('meta', attrs={'property': 'og:description'}) or soup.find('meta', attrs={'name': 'twitter:description'}) or soup.find('meta', attrs={'name': 'description'})
+            
+            title_meta = og_title['content'].strip() if (og_title and 'content' in og_title.attrs) else ""
+            desc_meta = og_desc['content'].strip() if (og_desc and 'content' in og_desc.attrs) else ""
+            judul = soup.title.string.strip() if (soup.title and soup.title.string) else title_meta
+            
             paragraphs = [p.get_text().strip() for p in soup.find_all('p') if len(p.get_text().strip()) > 30]
-            if paragraphs:
-                teks = " ".join(paragraphs)[:3000]
-            else:
-                teks = soup.get_text(separator=' ', strip=True)[:3000]
-            return judul, teks
+            body_teks = " ".join(paragraphs)[:3000] if paragraphs else soup.get_text(separator=' ', strip=True)[:3000]
+
+            if is_social_media:
+                slug_kw = extract_keywords_from_url(url)
+                combined_social_text = f"[Unggahan Unggulan {platform_name}]\nJudul/Meta Title: {title_meta or judul}\nTeks Deskripsi/Konten: {desc_meta or body_teks[:1000]}\nKata Kunci Topik: {slug_kw}"
+                return judul or title_meta or f"Unggahan {platform_name}", combined_social_text
+            
+            return judul, body_teks
         return None, "ERROR_LINK"
-    except:
+    except Exception as e:
+        print(f"Link scraping error: {e}")
         return None, "ERROR_LINK"
 
 def extract_search_keywords(teks_input):
@@ -139,7 +165,7 @@ def translate_to_english_keywords(text):
         query_str = f"Indonesia {query_str}"
     return query_str
 
-def _fetch_gnews_id(query):
+def _fetch_gnews_id(query, exclude_url=None):
     referensi = []
     try:
         url_gnews = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=id&gl=ID&ceid=ID:id"
@@ -151,7 +177,7 @@ def _fetch_gnews_id(query):
                 title = item.find('title').text if item.find('title') is not None else ''
                 link = item.find('link').text if item.find('link') is not None else ''
                 pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
-                if link:
+                if link and (not exclude_url or exclude_url not in link):
                     sumber = title.split(' - ')[-1] if ' - ' in title else 'Media Nasional'
                     referensi.append({
                         'title': title,
@@ -162,7 +188,7 @@ def _fetch_gnews_id(query):
         print(f"Google News RSS ID error: {e}")
     return referensi
 
-def _fetch_gnews_int(query):
+def _fetch_gnews_int(query, exclude_url=None):
     referensi = []
     try:
         url_gnews = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=en-US&gl=US&ceid=US:en"
@@ -174,7 +200,7 @@ def _fetch_gnews_int(query):
                 title = item.find('title').text if item.find('title') is not None else ''
                 link = item.find('link').text if item.find('link') is not None else ''
                 pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
-                if link:
+                if link and (not exclude_url or exclude_url not in link):
                     sumber = title.split(' - ')[-1] if ' - ' in title else 'International Media'
                     referensi.append({
                         'title': title,
@@ -185,7 +211,7 @@ def _fetch_gnews_int(query):
         print(f"Google News RSS International error: {e}")
     return referensi
 
-def _fetch_ddg(query):
+def _fetch_ddg(query, exclude_url=None):
     referensi = []
     try:
         ddgs = DDGS()
@@ -194,7 +220,7 @@ def _fetch_ddg(query):
             href = hasil.get('href', '')
             title = hasil.get('title', 'Sumber Berita')
             body = hasil.get('body', '')
-            if href:
+            if href and (not exclude_url or exclude_url not in href):
                 referensi.append({
                     'title': title,
                     'href': href,
@@ -204,7 +230,7 @@ def _fetch_ddg(query):
         print(f"DuckDuckGo error: {e}")
     return referensi
 
-def cari_referensi_internet(teks_input):
+def cari_referensi_internet(teks_input, exclude_url=None):
     hasil_referensi = []
     links_seen = set()
     query_id = extract_search_keywords(teks_input)
@@ -212,9 +238,9 @@ def cari_referensi_internet(teks_input):
     
     # PERCEPATAN PARALEL: PANGGIL KANAL NASIONAL, INTERNASIONAL, & DUCKDUCKGO SEKALIGUS
     with ThreadPoolExecutor(max_workers=3) as executor:
-        future_gnews_id = executor.submit(_fetch_gnews_id, query_id)
-        future_gnews_int = executor.submit(_fetch_gnews_int, query_en)
-        future_ddg = executor.submit(_fetch_ddg, query_id)
+        future_gnews_id = executor.submit(_fetch_gnews_id, query_id, exclude_url)
+        future_gnews_int = executor.submit(_fetch_gnews_int, query_en, exclude_url)
+        future_ddg = executor.submit(_fetch_ddg, query_id, exclude_url)
         
         gnews_id_res = future_gnews_id.result()
         gnews_int_res = future_gnews_int.result()
@@ -232,7 +258,7 @@ def cari_referensi_internet(teks_input):
             all_combined.append(ddg_res[i])
 
     for item in all_combined:
-        if item['href'] and item['href'] not in links_seen:
+        if item['href'] and item['href'] not in links_seen and (not exclude_url or exclude_url not in item['href']):
             links_seen.add(item['href'])
             hasil_referensi.append(item)
 
@@ -240,14 +266,14 @@ def cari_referensi_internet(teks_input):
     if not hasil_referensi:
         words = [w for w in re.sub(r'[^\w\s]', ' ', teks_input).split() if len(w) > 3]
         query_broad = " ".join(words[:3]) if words else teks_input[:30]
-        gnews_broad = _fetch_gnews_id(query_broad)
+        gnews_broad = _fetch_gnews_id(query_broad, exclude_url)
         for item in gnews_broad:
-            if item['href'] and item['href'] not in links_seen:
+            if item['href'] and item['href'] not in links_seen and (not exclude_url or exclude_url not in item['href']):
                 links_seen.add(item['href'])
                 hasil_referensi.append(item)
 
     if not hasil_referensi:
-        return "Tidak ditemukan referensi langsung di internet."
+        return "Tidak ditemukan referensi berita eksternal langsung di internet."
 
     hasil_pencarian_teks = ""
     for i, ref in enumerate(hasil_referensi[:8]):
@@ -295,7 +321,7 @@ def analyze_text():
         except Exception as e:
             return jsonify({"error": "Format gambar tidak didukung."}), 400
 
-    # B. TAB URL / LINK MODE
+    # B. TAB URL / LINK MODE (PEMERIKSAAN TAUTAN BERITA ATAU MEDIA SOSIAL)
     elif input_url:
         if not pola_url.match(input_url) and not input_url.startswith('http'):
             html_bukan_link = """
@@ -303,7 +329,7 @@ def analyze_text():
                 <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rose-900 text-lg mb-2">Bukan Tautan Berita</h4>
+                <h4 class="font-bold text-rose-900 text-lg mb-2">Bukan Tautan Berita / Media Sosial</h4>
                 <p class="text-rose-700 text-sm">Teks yang Anda masukkan di kolom URL tidak memiliki format tautan yang valid (seperti http:// atau www.). Harap gunakan kolom 'Teks Klaim' jika Anda ingin mengetik pernyataan biasa.</p>
             </div>
             """
@@ -315,17 +341,16 @@ def analyze_text():
             
         judul_halaman, hasil_scraping = ambil_teks_dari_link(url_target)
         
-        if hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 50:
-            teks_untuk_dianalisis = f"URL Tautan Artikel Pengguna: {url_target}\n" + (f"Judul Artikel: {judul_halaman}\n" if judul_halaman else "") + f"Isi Teks Artikel:\n{hasil_scraping}"
-            query_search = judul_halaman if judul_halaman else hasil_scraping[:200]
+        if hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 30:
+            teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\n" + (f"Judul/Meta Artikel: {judul_halaman}\n" if judul_halaman else "") + f"Isi Teks / Meta Unggahan:\n{hasil_scraping}"
+            query_search = judul_halaman if (judul_halaman and len(judul_halaman) > 10) else extract_keywords_from_url(url_target)
         else:
             url_keywords = extract_keywords_from_url(url_target)
-            teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\nTopik Artikel (dikategori dari Tautan): {url_keywords}"
+            teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\nTopik Isu (dikategori dari Tautan Slug): {url_keywords}"
             query_search = url_keywords if url_keywords else url_target
 
-        referensi_terkait = cari_referensi_internet(query_search)
-        referensi_utama = f"Referensi Utama (Tautan Pengguna):\n- Judul: {judul_halaman if (judul_halaman and hasil_scraping != 'ERROR_LINK') else 'Artikel Tautan Pengguna'}\n- Link: {url_target}\n- Ringkasan: Halaman artikel berita spesifik yang dikirim oleh pengguna.\n\n"
-        referensi_internet = referensi_utama + referensi_terkait
+        # EXCLUDE URL INPUT PENGGUNA AGAR REFERENSI HANYA BERISI BERITA EKSTERNAL PEMBANDING
+        referensi_internet = cari_referensi_internet(query_search, exclude_url=url_target)
 
     # C. TAB TEKS BIASA / TEXT STATEMENT MODE
     elif input_teks:
@@ -360,18 +385,18 @@ JIKA input HANYA berupa teks acak/asal-asalan (contoh: "asdfgh", "qwerty", "sasa
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
     </div>
     <h4 class="font-bold text-rose-900 text-lg mb-2">Input Tidak Valid</h4>
-    <p class="text-rose-700 text-sm">Teks yang Anda masukkan tidak terdeteksi sebagai klaim atau informasi berita yang dapat diverifikasi faktanya. Mohon masukkan klaim atau berita yang spesifik.</p>
+    <p class="text-rose-700 text-sm">Teks atau tautan yang Anda masukkan tidak terdeteksi sebagai klaim atau informasi berita yang dapat diverifikasi faktanya. Mohon masukkan klaim, berita, atau tautan yang spesifik.</p>
 </div>
 
 [PETUNJUK ANALISIS SUNGGUH-SUNGGUH & MULTI-PERSPEKTIF MEDIA NASIONAL DAN INTERNASIONAL]
 - Jangan langsung menyimpulkan klaim "Rendah" atau "Tidak Ada Referensi" secara terburu-buru. Analisis subjek utama, lokasi, dan latar belakang klaim secara mendalam.
-- Verisight menggunakan acuan dari **Kanal Berita Nasional** (Kompas, Detik, Antara, CNN Indonesia, dll.) DAN **Kanal Berita Internasional / Global** (seperti South China Morning Post, BBC, Reuters, Al Jazeera, CNN International, Japan Times, AP News, Bloomberg).
+- Verisight menggunakan acuan dari **Kanal Berita Nasional** (Kompas, Detik, Antara, CNN Indonesia, Suara, dll.) DAN **Kanal Berita Internasional / Global** (seperti South China Morning Post, BBC, Reuters, Al Jazeera, CNN International, Japan Times, AP News, Bloomberg).
 - Gunakan data [Referensi Web] secara optimal untuk menyajikan evaluasi independen yang bebas dari pembatasan atau sensor media lokal.
 
 [ATURAN WAJIB REFERENSI URL & LINK ASLI]
 1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS artikel berita spesifik dan lengkap (`Link`) dari data [Referensi Web] di bawah ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Artikel Asli</a>`.
 2. DILARANG KERAS mencantumkan link ke Halaman Utama / Domain Utama media berita umum saja (seperti `https://kompas.com`, `https://detik.com`, `https://news.kompas.com`, `https://antara.id`). Kamu HARUS menggunakan URL artikel berita spesifik dan lengkap dari data Referensi Web!
-3. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel spesifik dari data Referensi Web (sertakan kombinasi berita nasional dan berita internasional jika tersedia).
+3. DILARANG KERAS memasukkan kembali tautan URL yang dikirim pengguna ke dalam daftar `Referensi Berita & Kanal Cek Fakta Resmi`. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel EKSTERNAL pembanding dari media massa resmi!
 
 [ATURAN WARNA STYLING STATUS VERIFIKASI WAJIB]
 Gunakan kelas Tailwind CSS yang tepat untuk span Status Verifikasi:
@@ -382,8 +407,8 @@ Gunakan kelas Tailwind CSS yang tepat untuk span Status Verifikasi:
 
 [DATA]
 Waktu Acuan Hari Ini: {waktu_sekarang_universal}
-Referensi Web: {referensi_internet}
-Klaim / Artikel Pengguna: "{teks_untuk_dianalisis}"
+Referensi Web Eksternal Pembanding: {referensi_internet}
+Klaim / Artikel / Unggahan Pengguna: "{teks_untuk_dianalisis}"
 
 [ATURAN WAJIB OUTPUT JIKA INPUT VALID]
 Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. JANGAN gunakan tag markdown ```html.
@@ -416,7 +441,7 @@ Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. J
     <div class="bg-blue-50/70 p-4 rounded-xl border border-blue-200">
         <h4 class="font-bold text-primary-900 text-sm mb-2">Referensi Berita & Kanal Cek Fakta Resmi</h4>
         <ul class="list-disc pl-5 space-y-1.5 text-xs text-primary-700">
-            <li><a href="URL_ASLI_DARI_REFERENSI_WEB" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Referensi Asli</a></li>
+            <li><a href="URL_ASLI_DARI_REFERENSI_WEB" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Referensi Asli (Sertakan Berita Eksternal Pembanding)</a></li>
         </ul>
     </div>
 </div>
