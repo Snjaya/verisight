@@ -9,15 +9,15 @@ from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
-# IMPORT SDK TERBARU
 from google import genai
 from google.genai import types
 from duckduckgo_search import DDGS
 from PIL import Image
 
-# 1. MEMUAT KONFIGURASI DAN CLIENT AI TERBARU
+# 1. MEMUAT KONFIGURASI
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# CATATAN: Client AI tidak lagi diinisialisasi di sini. 
+# Client akan dipanggil di dalam fungsi agar kompatibel dengan Vercel Serverless.
 
 app = Flask(__name__)
 
@@ -32,12 +32,7 @@ def perbaiki_tautan_html(html_text):
     return re.sub(r'href=["\']([^"\']+)["\']', sanitize_url, html_text)
 
 def perbaiki_warna_status_badge(html_text):
-    """Memastikan warna badge status verifikasi sesuai dengan standar visual:
-    - Fakta Valid -> Emerald Green (bg-emerald-100 text-emerald-800)
-    - Disinformasi / Hoaks -> Rose Red (bg-rose-100 text-rose-800)
-    - Menyesatkan -> Amber Yellow (bg-amber-100 text-amber-800)
-    - Perlu Verifikasi -> Blue (bg-blue-100 text-blue-800)
-    """
+    """Memastikan warna badge status verifikasi sesuai dengan standar visual"""
     html_text = re.sub(
         r'class="[^"]*bg-amber-100[^"]*"(>\s*Fakta Valid)',
         r'class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"\1',
@@ -59,11 +54,6 @@ def perbaiki_warna_status_badge(html_text):
     return html_text
 
 def check_domain_security(url):
-    """Verifikasi keamanan domain:
-    Hanya mengizinkan tautan dari Media Sosial (Instagram, TikTok, X, Reddit, Facebook, YouTube)
-    dan Portal Berita / Situs Web Resmi.
-    Domain lain yang acak / tidak dikenal akan ditolak sebagai Input Tidak Valid.
-    """
     social_domains = [
         'instagram.com', 'instagr.am', 'tiktok.com', 'vt.tiktok.com', 'vm.tiktok.com',
         'x.com', 'twitter.com', 'reddit.com', 'facebook.com', 'fb.watch',
@@ -257,7 +247,6 @@ def cari_referensi_internet(teks_input, exclude_url=None):
     query_id = extract_search_keywords(teks_input)
     query_en = translate_to_english_keywords(teks_input)
     
-    # PERCEPATAN PARALEL: PANGGIL KANAL NASIONAL, INTERNASIONAL, & DUCKDUCKGO SEKALIGUS
     with ThreadPoolExecutor(max_workers=3) as executor:
         future_gnews_id = executor.submit(_fetch_gnews_id, query_id, exclude_url)
         future_gnews_int = executor.submit(_fetch_gnews_int, query_en, exclude_url)
@@ -267,7 +256,6 @@ def cari_referensi_internet(teks_input, exclude_url=None):
         gnews_int_res = future_gnews_int.result()
         ddg_res = future_ddg.result()
 
-    # Interleave / gabungkan sumber nasional dan internasional secara seimbang
     all_combined = []
     max_len = max(len(gnews_id_res), len(gnews_int_res), len(ddg_res))
     for i in range(max_len):
@@ -283,7 +271,6 @@ def cari_referensi_internet(teks_input, exclude_url=None):
             links_seen.add(item['href'])
             hasil_referensi.append(item)
 
-    # FALLBACK BROADER QUERY jika tidak ada hasil
     if not hasil_referensi:
         words = [w for w in re.sub(r'[^\w\s]', ' ', teks_input).split() if len(w) > 3]
         query_broad = " ".join(words[:3]) if words else teks_input[:30]
@@ -310,12 +297,21 @@ def home():
 # 4. RUTE API UNTUK ANALISIS AI
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
-    # Mengambil data berdasarkan input pengguna (text, url, atau image)
+    
+    # === PEMBARUAN PENTING UNTUK VERCEL ===
+    # Inisialisasi client Gemini diletakkan secara dinamis di dalam fungsi request.
+    # Ini menjamin Vercel membaca kunci rahasia secara real-time.
+    api_key_server = os.environ.get("GEMINI_API_KEY")
+    if not api_key_server:
+        return jsonify({"error": "Sistem gagal menemukan Kunci API Gemini di pengaturan Vercel."}), 500
+    
+    client = genai.Client(api_key=api_key_server)
+    # =======================================
+
     input_teks = request.form.get('text', '').strip()
     input_url = request.form.get('url', '').strip()
     file_gambar = request.files.get('image')
 
-    # Fallback: jika input_teks adalah URL
     if not input_url and input_teks and (input_teks.startswith('http://') or input_teks.startswith('https://') or input_teks.startswith('www.')):
         input_url = input_teks
         input_teks = ""
@@ -329,7 +325,7 @@ def analyze_text():
 
     pola_url = re.compile(r'^(https?://|www\.)[^\s/$.?#].[^\s]*$', re.IGNORECASE)
 
-    # A. TAB GAMBAR / SCREENSHOT (VISION AI)
+    # A. TAB GAMBAR / SCREENSHOT
     if file_gambar and file_gambar.filename != '':
         try:
             image_bytes = file_gambar.read()
@@ -342,7 +338,7 @@ def analyze_text():
         except Exception as e:
             return jsonify({"error": "Format gambar tidak didukung."}), 400
 
-    # B. TAB URL / LINK MODE (PEMERIKSAAN TAUTAN BERITA ATAU MEDIA SOSIAL / REELS)
+    # B. TAB URL / LINK MODE
     elif input_url:
         url_target = input_url
         if not url_target.startswith('http'):
@@ -350,7 +346,6 @@ def analyze_text():
 
         is_valid_url, url_type = check_domain_security(url_target)
         
-        # KEAMANAN DOMAIN: HANYA IZINKAN MEDIA SOSIAL DAN PORTAL BERITA RESMI
         if not is_valid_url or not pola_url.match(url_target):
             html_bukan_link = """
             <div class="bg-rose-50 p-6 rounded-xl border border-rose-200 text-center mb-6">
@@ -406,7 +401,7 @@ def analyze_text():
 
         referensi_internet = cari_referensi_internet(query_search, exclude_url=url_target)
 
-    # C. TAB TEKS BIASA / TEXT STATEMENT MODE
+    # C. TAB TEKS BIASA
     elif input_teks:
         teks_untuk_dianalisis = input_teks
         referensi_internet = cari_referensi_internet(input_teks)
@@ -450,7 +445,7 @@ def analyze_text():
 
 [ATURAN WAJIB REFERENSI URL & LINK ASLI]
 1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS artikel berita spesifik dan lengkap (`Link`) dari data [Referensi Web] di bawah ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Artikel Asli</a>`.
-2. DILARANG KERAS mencantumkan link ke Halaman Utama / Domain Utama media berita umum saja (seperti `https://kompas.com`, `https://detik.com`, `https://news.kompas.com`, `https://antara.id`). Kamu HARUS menggunakan URL artikel berita spesifik dan lengkap dari data Referensi Web!
+2. DILARANG KERAS mencantumkan link ke Halaman Utama / Domain Utama media berita umum saja (seperti `[https://kompas.com](https://kompas.com)`, `[https://detik.com](https://detik.com)`, `[https://news.kompas.com](https://news.kompas.com)`, `[https://antara.id](https://antara.id)`). Kamu HARUS menggunakan URL artikel berita spesifik dan lengkap dari data Referensi Web!
 3. DILARANG KERAS memasukkan kembali tautan URL yang dikirim pengguna ke dalam daftar `Referensi Berita & Kanal Cek Fakta Resmi`. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel EKSTERNAL pembanding dari media massa resmi!
 
 [ATURAN WARNA STYLING STATUS VERIFIKASI WAJIB]
@@ -547,7 +542,7 @@ Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. J
 
         return jsonify({
             "result": hasil_bersih,
-            "thinking": ""  # AI Reasoning Trace disembunyikan sementara sesuai permintaan
+            "thinking": "" 
         })
         
     except Exception as e:
