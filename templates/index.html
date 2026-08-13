@@ -32,18 +32,55 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #1e293b; background-color: #f8fafc; }
-        .transition-smooth { transition: all 0.2s ease-in-out; }
-        .card-shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06); }
-        .card-shadow:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06); }
-        .prose-clean h2 { font-size: 1.35rem; font-weight: 700; color: #1e293b; margin-top: 1.5rem; margin-bottom: 0.75rem; }
-        .prose-clean p { margin-bottom: 1rem; line-height: 1.75; color: #475569; }
-        .fade-in { animation: fadeIn 0.3s ease-in; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
+        }
+
+        .transition-smooth {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .prose-clean h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .prose-clean p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -56,12 +93,12 @@
 
         // ---------- MODULES & QUIZ DATA ----------
         const literacyModules = [
-            { id: 1, judul: "Mengenali Tangkapan Layar & Foto Hasil Manipulasi", deskripsi: "Teknik mendeteksi editing metadata, font janggal, dan pencarian gambar terbalik.", durasi: "8 menit", level: "Dasar", kategori: "Gambar", progress: 60 },
-            { id: 2, judul: "Cara Memeriksa Sumber Informasi & Portal Web Palsu", deskripsi: "Kenali perbedaan website portal berita resmi (.go.id / pers) dan domain tiruan.", durasi: "10 menit", level: "Dasar", kategori: "Sumber", progress: 20 },
-            { id: 3, judul: "Mengenali Judul Clickbait & Sensasional", deskripsi: "Pelajari ciri-ciri judul yang dibuat khusus memancing emosi dan umpan klik.", durasi: "6 menit", level: "Dasar", kategori: "Media Sosial", progress: 100 },
-            { id: 4, judul: "Membedakan Fakta, Opini, dan Disinformasi Digital", deskripsi: "Pahami perbedaan klaim yang didukung data ilmiah vs klaim subjektif.", durasi: "7 menit", level: "Menengah", kategori: "Analisis", progress: 0 },
-            { id: 5, judul: "Waspada Deepfake Audio & Video Generatif AI", deskripsi: "Ciri-ciri fisik video tiruan tokoh publik berbasis kecerdasan buatan.", durasi: "12 menit", level: "Lanjutan", kategori: "Gambar", progress: 0 },
-            { id: 6, judul: "Anatomi Penipuan Modus Bantuan Pemerintah & Phishing", deskripsi: "Mengenali pola kalimat modus penipuan berantai di platform pesan singkat.", durasi: "9 menit", level: "Dasar", kategori: "Keamanan", progress: 0 }
+            { id: 1, judul: "Mengenali Tangkapan Layar & Foto Hasil Manipulasi", deskripsi: "Teknik mendeteksi editing metadata, font janggal, dan pencarian gambar terbalik.", durasi: "4 menit", level: "Dasar", kategori: "Gambar", progress: 60, available: true },
+            { id: 2, judul: "Cara Memeriksa Sumber Informasi & Portal Web Palsu", deskripsi: "Kenali perbedaan website portal berita resmi (.go.id / pers) dan domain tiruan.", durasi: "10 menit", level: "Dasar", kategori: "Sumber", progress: 20, available: false },
+            { id: 3, judul: "Mengenali Judul Clickbait & Sensasional", deskripsi: "Pelajari ciri-ciri judul yang dibuat khusus memancing emosi dan umpan klik.", durasi: "5 menit", level: "Dasar", kategori: "Media Sosial", progress: 100, available: true },
+            { id: 4, judul: "Membedakan Fakta, Opini, dan Disinformasi Digital", deskripsi: "Pahami perbedaan klaim yang didukung data ilmiah vs klaim subjektif.", durasi: "3 menit", level: "Menengah", kategori: "Analisis", progress: 0, available: true },
+            { id: 5, judul: "Waspada Deepfake Audio & Video Generatif AI", deskripsi: "Ciri-ciri fisik video tiruan tokoh publik berbasis kecerdasan buatan.", durasi: "12 menit", level: "Lanjutan", kategori: "Gambar", progress: 0, available: false },
+            { id: 6, judul: "Anatomi Penipuan Modus Bantuan Pemerintah & Phishing", deskripsi: "Mengenali pola kalimat modus penipuan berantai di platform pesan singkat.", durasi: "9 menit", level: "Dasar", kategori: "Keamanan", progress: 0, available: false }
         ];
 
         const quizQuestions = [
@@ -196,7 +233,7 @@
                 try {
                     const response = await fetch('/api/analyze', {
                         method: 'POST',
-                        body: formData 
+                        body: formData
                     });
 
                     const data = await response.json();
@@ -445,18 +482,252 @@
             );
         }
 
-        // ---------- ABOUT PAGE ----------
+        // ---------- ABOUT PAGE (PROJECT LANDING PAGE) ----------
         function AboutPage({ navigate }) {
             return (
-                <div className="fade-in">
-                    <section className="bg-navy-900 text-white py-16 md:py-24">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                            <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest inline-block mb-4">Tentang Platform</span>
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-6 leading-tight">Edukasi Nalar Kritis di Era Informasi Digital</h1>
-                            <p className="text-slate-300 text-sm md:text-base max-w-3xl mx-auto mb-8 leading-relaxed">Verisight dirancang untuk membantu publik menguji kebenaran pernyataan, gambar tangkapan layar, dan artikel digital melalui alur evaluasi kritis terstruktur.</p>
-                            <div className="flex justify-center gap-3">
-                                <button onClick={() => navigate('/')} className="px-6 py-3 bg-primary-600 text-white font-bold text-xs rounded-xl hover:bg-primary-500 transition-smooth shadow-lg shadow-primary-900/50">Coba Periksa Informasi</button>
-                                <button onClick={() => navigate('/literacy')} className="px-6 py-3 bg-white/10 text-white font-bold text-xs rounded-xl hover:bg-white/20 transition-smooth border border-white/20">Baca Artikel Literasi</button>
+                <div className="fade-in bg-slate-50">
+                    {/* 1. HERO SECTION */}
+                    <section className="bg-navy-900 text-white py-16 md:py-24 relative overflow-hidden border-b border-navy-800">
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-900/40 via-navy-900 to-navy-950 pointer-events-none"></div>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                            <div className="grid lg:grid-cols-12 gap-12 items-center">
+                                <div className="lg:col-span-7 text-center lg:text-left">
+                                    <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest inline-flex items-center gap-1.5 mb-6">
+                                        <span className="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
+                                        Platform Verifikasi Informasi & Literasi Digital AI
+                                    </span>
+                                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-tight">
+                                        Membangun Nalar Kritis Melawan Disinformasi Digital
+                                    </h1>
+                                    <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+                                        Verisight mengintegrasikan kecerdasan buatan Gemini AI, analisis Vision OCR gambar, web scraping real-time, serta penelusuran fakta dari portal berita nasional dan internasional independen secara transparan.
+                                    </p>
+                                    <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+                                        <button onClick={() => navigate('/')} className="px-7 py-3.5 bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs sm:text-sm rounded-xl transition-smooth shadow-lg shadow-primary-900/50 flex items-center gap-2">
+                                            <span>Mulai Periksa Informasi</span>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                        </button>
+                                        <button onClick={() => navigate('/literacy')} className="px-7 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-xl transition-smooth border border-white/20 flex items-center gap-2">
+                                            <span>Jelajahi Modul Literasi</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Hero Metric Card Showcase */}
+                                <div className="lg:col-span-5">
+                                    <div className="bg-navy-800/80 border border-slate-700/60 p-6 sm:p-8 rounded-2xl shadow-2xl backdrop-blur-sm space-y-6">
+                                        <div className="flex items-center justify-between border-b border-slate-700/60 pb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-primary-600/30 text-primary-400 rounded-xl flex items-center justify-center border border-primary-500/30">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-white text-sm">Verisight Engine v2.5</h4>
+                                                    <p className="text-xs text-slate-400">Arsitektur Evaluasi Terintegrasi</p>
+                                                </div>
+                                            </div>
+                                            <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold rounded-full">Aktif & Stabil</span>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="bg-navy-900/70 p-3.5 rounded-xl border border-slate-700/40 flex items-center justify-between">
+                                                <span className="text-xs text-slate-300 font-semibold">Kecepatan Pencarian Paralel</span>
+                                                <span className="text-xs font-mono font-bold text-primary-400">~3.2 Detik</span>
+                                            </div>
+                                            <div className="bg-navy-900/70 p-3.5 rounded-xl border border-slate-700/40 flex items-center justify-between">
+                                                <span className="text-xs text-slate-300 font-semibold">Cakupan Berita Internasional</span>
+                                                <span className="text-xs font-mono font-bold text-emerald-400">BBC, SCMP, Reuters, Al Jazeera</span>
+                                            </div>
+                                            <div className="bg-navy-900/70 p-3.5 rounded-xl border border-slate-700/40 flex items-center justify-between">
+                                                <span className="text-xs text-slate-300 font-semibold">Dukungan Konten Media Sosial</span>
+                                                <span className="text-xs font-mono font-bold text-amber-400">Instagram Reels, TikTok, X, Reddit</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 2. STATS BAR */}
+                    <section className="bg-white border-b border-slate-200 py-8">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                                <div className="p-4">
+                                    <div className="text-2xl sm:text-3xl font-black text-navy-900 mb-1">3+ Mode</div>
+                                    <div className="text-xs text-slate-500 font-semibold">Teks, Tautan & Vision AI Gambar</div>
+                                </div>
+                                <div className="p-4 border-l border-slate-100">
+                                    <div className="text-2xl sm:text-3xl font-black text-primary-600 mb-1">15+ Portal</div>
+                                    <div className="text-xs text-slate-500 font-semibold">Kanal Berita Nasional & Global</div>
+                                </div>
+                                <div className="p-4 border-l border-slate-100">
+                                    <div className="text-2xl sm:text-3xl font-black text-navy-900 mb-1">~3 Detik</div>
+                                    <div className="text-xs text-slate-500 font-semibold">Penelusuran Referensi Lintas Web</div>
+                                </div>
+                                <div className="p-4 border-l border-slate-100">
+                                    <div className="text-2xl sm:text-3xl font-black text-emerald-600 mb-1">100% Bebas</div>
+                                    <div className="text-xs text-slate-500 font-semibold">Evaluasi Independen & Transparan</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 3. PLATFORM CORE FEATURES */}
+                    <section className="py-16 md:py-24">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="text-center max-w-3xl mx-auto mb-16">
+                                <span className="px-3 py-1 bg-primary-100 text-primary-700 text-xs font-bold rounded-full uppercase tracking-wider inline-block mb-3">Keunggulan Teknologi</span>
+                                <h2 className="text-2xl sm:text-4xl font-black text-navy-900 mb-4">Fitur Utama Platform Verisight</h2>
+                                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                                    Dirancang dengan pendekatan multi-perspektif untuk memastikan setiap klaim diperiksa secara obyektif, cepat, dan transparan.
+                                </p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {/* Feature 1 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Analisis Multi-Input (Teks, URL & Vision AI)</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Mendukung verifikasi pernyataan biasa, artikel berita digital, video Reels media sosial (Instagram, TikTok, X, Reddit), hingga pengenalan teks pada foto tangkapan layar.
+                                    </p>
+                                </div>
+
+                                {/* Feature 2 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Referensi Berita Lintas Negara</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Menggabungkan penelusuran dari kanal berita nasional (Kompas, Detik, Antara, CNN Indonesia) serta media global (BBC, South China Morning Post, Reuters, Al Jazeera) untuk transparansi informasi.
+                                    </p>
+                                </div>
+
+                                {/* Feature 3 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Keamanan Domain & Filter Penjaga</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Sistem proteksi otomatis yang memvalidasi keaslian tautan platform media sosial dan situs berita resmi, serta memblokir tautan acak atau berbahaya.
+                                    </p>
+                                </div>
+
+                                {/* Feature 4 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Penalaran AI Transparan</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Pengguna dapat meninjau alur berpikir kritis (reasoning trace) dari kecerdasan buatan, termasuk penentuan status fakta valid, disinformasi, atau perlu verifikasi.
+                                    </p>
+                                </div>
+
+                                {/* Feature 5 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Modul Literasi Digital Interaktif</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Panduan terstruktur tentang cara mendeteksi foto hasil suntingan, mengenali judul clickbait, serta membedakan fakta ilmiah dari opini subjektif.
+                                    </p>
+                                </div>
+
+                                {/* Feature 6 */}
+                                <div className="bg-white p-8 rounded-2xl border border-slate-200 card-shadow space-y-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center font-bold">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                                    </div>
+                                    <h3 className="text-base font-bold text-navy-900">Kuis Uji Pemahaman Mandiri</h3>
+                                    <p className="text-slate-600 text-xs leading-relaxed">
+                                        Dilengkapi dengan modul kuis evaluasi berbasis studi kasus nyata untuk melatih reflek nalar kritis pengguna sebelum menyebarkan berita.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 4. WORKFLOW / HOW IT WORKS */}
+                    <section className="py-16 md:py-24 bg-white border-t border-slate-200">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="text-center max-w-3xl mx-auto mb-16">
+                                <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full uppercase tracking-wider inline-block mb-3">Alur Kerja Sistem</span>
+                                <h2 className="text-2xl sm:text-4xl font-black text-navy-900 mb-4">Bagaimana Verisight Memeriksa Informasi?</h2>
+                                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                                    Proses empat tahap otomatis yang menjamin keakuratan evaluasi tanpa mengorbankan kecepatan.
+                                </p>
+                            </div>
+
+                            <div className="grid md:grid-cols-4 gap-6">
+                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 relative">
+                                    <span className="w-8 h-8 rounded-lg bg-navy-900 text-white font-black text-xs flex items-center justify-center mb-4">01</span>
+                                    <h4 className="font-bold text-navy-900 text-sm mb-2">Input Informasi</h4>
+                                    <p className="text-slate-600 text-xs leading-relaxed">Pengguna memasukkan teks klaim, tautan berita/Reels, atau mengunggah foto tangkapan layar.</p>
+                                </div>
+                                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 relative">
+                                    <span className="w-8 h-8 rounded-lg bg-primary-600 text-white font-black text-xs flex items-center justify-center mb-4">02</span>
+                                    <h4 className="font-bold text-navy-900 text-sm mb-2">Penelusuran Paralel</h4>
+                                    <p className="text-slate-600 text-xs leading-relaxed">Mesin pencari secara simultan mengambil referensi dari puluhan portal berita nasional & internasional.</p>
+                                </div>
+                                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 relative">
+                                    <span className="w-8 h-8 rounded-lg bg-navy-900 text-white font-black text-xs flex items-center justify-center mb-4">03</span>
+                                    <h4 className="font-bold text-navy-900 text-sm mb-2">Evaluasi Fakta AI</h4>
+                                    <p className="text-slate-600 text-xs leading-relaxed">Gemini AI mengevaluasi kesesuaian klaim dengan acuan waktu universal masa kini secara obyektif.</p>
+                                </div>
+                                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 relative">
+                                    <span className="w-8 h-8 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center mb-4">04</span>
+                                    <h4 className="font-bold text-navy-900 text-sm mb-2">Hasil Verifikasi & Link</h4>
+                                    <p className="text-slate-600 text-xs leading-relaxed">Sistem menampilkan status verifikasi, ringkasan analisis, serta rujukan tautan artikel asli.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 5. MISSION & VISION STATEMENT */}
+                    <section className="py-16 md:py-24 bg-navy-900 text-white relative overflow-hidden">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                            <div className="grid md:grid-cols-2 gap-12 items-center">
+                                <div className="bg-navy-800/80 p-8 sm:p-10 rounded-2xl border border-slate-700">
+                                    <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest inline-block mb-4">Visi Kami</span>
+                                    <h3 className="text-xl sm:text-2xl font-black text-white mb-4">Mewujudkan Ekosistem Informasi Digital yang Sehat</h3>
+                                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                                        Kami percaya bahwa teknologi kecerdasan buatan dapat dimanfaatkan untuk memberdayakan masyarakat agar mampu menyaring informasi secara mandiri, rasional, dan berbasis data empiris.
+                                    </p>
+                                </div>
+                                <div className="bg-navy-800/80 p-8 sm:p-10 rounded-2xl border border-slate-700">
+                                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-400/30 uppercase tracking-widest inline-block mb-4">Misi Kami</span>
+                                    <h3 className="text-xl sm:text-2xl font-black text-white mb-4">Akses Verifikasi Terbuka & Edukasi Berkelanjutan</h3>
+                                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                                        Menyediakan perkakas verifikasi fakta instan tanpa biaya, transparan dalam alur logika, serta menyediakan materi edukasi literasi digital bagi seluruh lapisan masyarakat.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 6. CALL TO ACTION BANNER */}
+                    <section className="py-16 md:py-20 bg-slate-50">
+                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="bg-gradient-to-r from-navy-900 via-primary-900 to-navy-900 text-white p-8 sm:p-12 rounded-3xl text-center shadow-xl border border-navy-800 relative overflow-hidden">
+                                <h2 className="text-2xl sm:text-4xl font-black mb-4 leading-tight">Siap Memeriksa Kebenaran Informasi Hari Ini?</h2>
+                                <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mb-8 leading-relaxed">
+                                    Gunakan alat analisis Verisight AI atau uji sejauh mana pemahaman literasi digital Anda melalui modul kuis interaktif.
+                                </p>
+                                <div className="flex flex-wrap justify-center gap-4">
+                                    <button onClick={() => navigate('/')} className="px-7 py-3.5 bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs sm:text-sm rounded-xl transition-smooth shadow-lg">
+                                        Periksa Informasi Sekarang
+                                    </button>
+                                    <button onClick={() => navigate('/quiz')} className="px-7 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl transition-smooth shadow-lg">
+                                        Ikuti Kuis Pemahaman
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -465,20 +736,31 @@
         }
 
         // ---------- ARTIKEL PAGE ----------
-        function LiteracyPage({ navigate }) {
+        function LiteracyPage({ navigate, setSelectedArticleId }) {
             const [activeCategory, setActiveCategory] = useState('Semua');
             const [searchQuery, setSearchQuery] = useState('');
-            const categories = ['Semua', 'Gambar', 'Sumber', 'Media Sosial', 'Analisis', 'Keamanan'];
+            const [statusFilter, setStatusFilter] = useState('semua'); // 'semua', 'tersedia', 'segera_hadir'
+            const categories = ['Semua', 'Tersedia Dibaca (3)', 'Gambar', 'Sumber', 'Media Sosial', 'Analisis', 'Keamanan'];
 
             const filteredModules = literacyModules.filter(m => {
-                const matchCategory = activeCategory === 'Semua' || m.kategori === activeCategory;
+                let matchCategory = true;
+                if (activeCategory === 'Tersedia Dibaca (3)') {
+                    matchCategory = m.available === true;
+                } else if (activeCategory !== 'Semua') {
+                    matchCategory = m.kategori === activeCategory;
+                }
+
+                let matchStatus = true;
+                if (statusFilter === 'tersedia') matchStatus = m.available === true;
+                if (statusFilter === 'segera_hadir') matchStatus = m.available === false;
+
                 const matchSearch = m.judul.toLowerCase().includes(searchQuery.toLowerCase()) || m.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchCategory && matchSearch;
+                return matchCategory && matchStatus && matchSearch;
             });
 
             return (
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div>
                             <h1 className="text-2xl font-black text-navy-900 mb-1">Artikel & Literasi Digital</h1>
                             <p className="text-slate-600 text-xs">Panduan dan artikel materi evaluasi fakta digital.</p>
@@ -487,43 +769,622 @@
                             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari artikel..." className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-primary-300 outline-none" />
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-8">
-                        {categories.map((cat) => (
-                            <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-4 py-2 rounded-xl text-xs font-bold transition-smooth ${activeCategory === cat ? 'bg-primary-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{cat}</button>
-                        ))}
+
+                    {/* Filter Bar: Status Tab + Kategori */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 pb-4 border-b border-slate-200">
+                        <div className="flex flex-wrap gap-2">
+                            {categories.map((cat) => (
+                                <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-smooth ${activeCategory === cat ? 'bg-primary-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs self-start sm:self-auto flex-shrink-0">
+                            <button onClick={() => setStatusFilter('semua')} className={`px-3 py-1 rounded-lg font-bold transition-smooth ${statusFilter === 'semua' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                                Semua (6)
+                            </button>
+                            <button onClick={() => setStatusFilter('tersedia')} className={`px-3 py-1 rounded-lg font-bold transition-smooth ${statusFilter === 'tersedia' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                                ✓ Tersedia (3)
+                            </button>
+                            <button onClick={() => setStatusFilter('segera_hadir')} className={`px-3 py-1 rounded-lg font-bold transition-smooth ${statusFilter === 'segera_hadir' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                                🔒 Segera Hadir (3)
+                            </button>
+                        </div>
                     </div>
+
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredModules.map((module) => (
-                            <div key={module.id} onClick={() => navigate('/literacy/detail')} className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 hover:shadow-lg transition-smooth cursor-pointer flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-700">{module.kategori}</span>
-                                        <span className="text-xs text-slate-400 font-semibold flex items-center gap-1"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{module.durasi}</span>
+                        {filteredModules.map((module) => {
+                            if (module.available) {
+                                return (
+                                    <div key={module.id} onClick={() => { setSelectedArticleId(module.id); navigate('/literacy/detail'); }} className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 hover:border-primary-300 hover:shadow-lg transition-smooth cursor-pointer flex flex-col justify-between group">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-700">{module.kategori}</span>
+                                                <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    {module.durasi}
+                                                </span>
+                                            </div>
+                                            <h3 className="text-sm font-bold text-navy-900 mb-2 leading-snug group-hover:text-primary-600 transition-smooth">{module.judul}</h3>
+                                            <p className="text-xs text-slate-600 mb-4 line-clamp-2">{module.deskripsi}</p>
+                                        </div>
+                                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                Tersedia Dibaca
+                                            </span>
+                                            <span className="text-xs font-bold text-primary-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                                                Baca ➔
+                                            </span>
+                                        </div>
                                     </div>
-                                    <h3 className="text-sm font-bold text-navy-900 mb-2 leading-snug hover:text-primary-600 transition-smooth">{module.judul}</h3>
-                                    <p className="text-xs text-slate-600 mb-4 line-clamp-2">{module.deskripsi}</p>
-                                </div>
-                            </div>
-                        ))}
+                                );
+                            } else {
+                                return (
+                                    <div key={module.id} className="bg-slate-100/60 rounded-2xl border border-dashed border-slate-300 p-6 opacity-75 select-none flex flex-col justify-between relative overflow-hidden">
+                                        <div className="absolute -right-6 -top-6 w-20 h-20 bg-slate-200/60 rounded-full flex items-end justify-start p-3 text-slate-400 font-bold text-[10px] transform rotate-12">
+                                            SOON
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">{module.kategori}</span>
+                                                <span className="text-[11px] text-slate-400 font-bold flex items-center gap-1">
+                                                    🔒 Segera Hadir
+                                                </span>
+                                            </div>
+                                            <h3 className="text-sm font-bold text-slate-500 mb-2 leading-snug">{module.judul}</h3>
+                                            <p className="text-xs text-slate-400 mb-4 line-clamp-2">{module.deskripsi}</p>
+                                        </div>
+                                        <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between">
+                                            <span className="inline-block text-[11px] font-bold text-slate-500 bg-slate-200/80 px-2.5 py-0.5 rounded-md">
+                                                🔒 Dalam Penyusunan Materi
+                                            </span>
+                                            <span className="text-[11px] font-semibold text-slate-400">
+                                                {module.durasi}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            }
+                        })}
                     </div>
                 </div>
             );
         }
 
         // ---------- LITERACY DETAIL ----------
-        function LiteracyDetailPage({ navigate }) {
+        function LiteracyDetailPage({ navigate, selectedArticleId, setSelectedArticleId }) {
+            const [openFaq, setOpenFaq] = useState(null);
+
+            const toggleFaq = (idx) => {
+                setOpenFaq(openFaq === idx ? null : idx);
+            };
+
+            // ARTIKEL 4: Membedakan Fakta, Opini, dan Disinformasi Digital (ticl3.md)
+            if (selectedArticleId === 4) {
+                const faqs4 = [
+                    {
+                        q: "Apa perbedaan utama disinformasi dan misinformasi?",
+                        a: "Disinformasi sengaja dibuat dan disebarkan untuk menyesatkan publik, meraih keuntungan, atau menciptakan kekacauan. Sedangkan misinformasi adalah informasi salah yang dibagikan secara tidak sengaja oleh seseorang yang percaya bahwa informasi tersebut benar."
+                    },
+                    {
+                        q: "Apakah opini selalu buruk atau menyesatkan?",
+                        a: "Tidak. Opini adalah ekspresi wajar dari sudut pandang atau selera seseorang. Opini baru menjadi berbahaya jika dibungkus atau disampaikan seolah-olah fakta ilmiah tanpa dukungan bukti valid."
+                    },
+                    {
+                        q: "Bagaimana cara memverifikasi apakah sebuah data ilmiah valid?",
+                        a: "Periksa apakah data tersebut dipublikasikan di jurnal ilmiah bereputasi, berasal dari lembaga riset resmi (seperti BRIN atau WHO), dan telah melalui proses tinjauan sejawat (peer-review)."
+                    },
+                    {
+                        q: "Apa yang harus dilakukan jika menemukan disinformasi di media sosial?",
+                        a: "Jangan menyebarkan ulang (bahkan untuk bahan hujatan), laporkan (report) konten tersebut ke penyedia platform, dan cantumkan tautan klarifikasi dari sumber cek fakta resmi di kolom komentar."
+                    }
+                ];
+
+                return (
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                        <button onClick={() => navigate('/literacy')} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold mb-6 transition-smooth">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                            <span>Kembali ke Daftar Artikel Literasi</span>
+                        </button>
+
+                        <article className="bg-white rounded-2xl border border-slate-200 card-shadow overflow-hidden">
+                            {/* Header Banner */}
+                            <div className="bg-navy-900 text-white p-6 sm:p-10 relative overflow-hidden">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest">Tingkat Menengah • Analisis</span>
+                                    <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        7 menit baca
+                                    </span>
+                                </div>
+                                <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
+                                    Membedakan Fakta, Opini, dan Disinformasi Digital
+                                </h1>
+                                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                                    Pahami perbedaan klaim yang didukung data ilmiah vs klaim subjektif agar tidak salah menilai informasi di media sosial.
+                                </p>
+                            </div>
+
+                            {/* Article Body */}
+                            <div className="p-6 sm:p-10 space-y-8 text-slate-800 text-sm leading-relaxed">
+                                {/* Intro */}
+                                <div className="bg-primary-50/60 p-5 rounded-xl border border-primary-100 text-primary-900 text-sm">
+                                    Setiap hari, linimasa kita dipenuhi berbagai klaim yang bercampur aduk antara data ilmiah, pendapat pribadi, hingga informasi yang sengaja menyesatkan. Sayangnya, tidak semua orang mampu <strong>membedakan fakta, opini, dan disinformasi</strong> yang beredar. Akibatnya, klaim yang sebenarnya subjektif sering dianggap sebagai kebenaran mutlak.
+                                </div>
+
+                                <p>
+                                    Artikel ini membantu kamu memahami perbedaan mendasar antara ketiga kategori tersebut serta memberikan alur panduan ilmiah untuk mengevaluasi setiap klaim sebelum kamu memercayainya.
+                                </p>
+
+                                {/* Why limits blur */}
+                                <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
+                                    <h3 className="text-base font-bold text-navy-900 flex items-center gap-2">
+                                        <span className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">!</span>
+                                        Mengapa Batas Fakta, Opini, dan Disinformasi Sering Kabur?
+                                    </h3>
+                                    <p className="text-slate-600 text-xs sm:text-sm">
+                                        Di dunia digital, siapa pun bisa menulis dan menyebarkan informasi tanpa proses verifikasi ketat. Ditambah dengan algoritma media sosial yang membentuk <em>echo chamber</em> (gelembung informasi), opini yang sering muncul di beranda kita bisa terasa seperti kebenaran umum padahal bersifat subjektif.
+                                    </p>
+                                </div>
+
+                                {/* 3 Pillars Comparison Cards */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-4">Tiga Tipe Informasi Digital: Fakta, Opini, Disinformasi</h2>
+
+                                    <div className="space-y-4">
+                                        {/* Card 1: Fakta */}
+                                        <div className="bg-emerald-50/60 p-5 rounded-xl border border-emerald-200">
+                                            <span className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg inline-block mb-2">1. Fakta (Data Objektif & Empiris)</span>
+                                            <p className="text-xs sm:text-sm text-emerald-900 mb-2">
+                                                Fakta adalah pernyataan yang dapat dibuktikan kebenarannya melalui data, riset ilmiah, atau bukti fisik. Sifatnya <strong>objektif</strong> dan tidak berubah meskipun dilihat dari sudut pandang pribadi.
+                                            </p>
+                                            <ul className="list-disc pl-5 text-xs text-emerald-800 space-y-1">
+                                                <li>Didukung data statistik, dokumen resmi, atau riset beruji klinis.</li>
+                                                <li>Dapat diverifikasi ulang oleh pihak independen kapan saja.</li>
+                                                <li>Contoh: <em>"Air mendidih pada suhu 100°C pada tekanan atmosfer standar."</em></li>
+                                            </ul>
+                                        </div>
+
+                                        {/* Card 2: Opini */}
+                                        <div className="bg-amber-50/60 p-5 rounded-xl border border-amber-200">
+                                            <span className="px-3 py-1 bg-amber-600 text-white text-xs font-bold rounded-lg inline-block mb-2">2. Opini (Pandangan Subjektif)</span>
+                                            <p className="text-xs sm:text-sm text-amber-900 mb-2">
+                                                Opini merupakan pandangan, penilaian, atau perasaan pribadi seseorang. Sifatnya <strong>subjektif</strong> dan bisa berbeda-beda antarindividu.
+                                            </p>
+                                            <ul className="list-disc pl-5 text-xs text-amber-800 space-y-1">
+                                                <li>Diawali frasa seperti <em>"menurut saya"</em>, <em>"sepertinya"</em>, atau <em>"seharusnya"</em>.</li>
+                                                <li>Berdasarkan selera, pengalaman, atau nilai sosial pribadi.</li>
+                                                <li>Contoh: <em>"Film ini merupakan karya sinematografi terbaik tahun ini."</em></li>
+                                            </ul>
+                                        </div>
+
+                                        {/* Card 3: Disinformasi */}
+                                        <div className="bg-rose-50/60 p-5 rounded-xl border border-rose-200">
+                                            <span className="px-3 py-1 bg-rose-600 text-white text-xs font-bold rounded-lg inline-block mb-2">3. Disinformasi Digital (Rekayasa Sengaja)</span>
+                                            <p className="text-xs sm:text-sm text-rose-900 mb-2">
+                                                Disinformasi adalah informasi salah yang <strong>sengaja dirancang dan disebarkan</strong> untuk menyesatkan publik, merusak reputasi, atau meraup keuntungan.
+                                            </p>
+                                            <ul className="list-disc pl-5 text-xs text-rose-800 space-y-1">
+                                                <li>Memakai data yang dipelintir di luar konteks asli atau rekayasa AI (Deepfake).</li>
+                                                <li>Sumber anonim, tidak terdaftar, atau tiruan (spoofing domain).</li>
+                                                <li>Contoh: Tangkapan layar editan pengumuman bantuan dana fiktif.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* How to check scientifically */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-3">Cara Membedakan Data Ilmiah vs Klaim Subjektif</h2>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs sm:text-sm">
+                                        <div className="flex gap-2"><strong>1.</strong> Tanyakan: <em>"Apakah klaim ini mencantumkan metodologi atau data dari sumber terpercaya?"</em></div>
+                                        <div className="flex gap-2"><strong>2.</strong> Periksa kredibilitas lembaga penerbit (misalnya lembaga riset terakreditasi vs akun media sosial anonim).</div>
+                                        <div className="flex gap-2"><strong>3.</strong> Perhatikan pilihan kata: Klaim ilmiah menggunakan bahasa terukur, sedangkan klaim subjektif penuh emotif.</div>
+                                        <div className="flex gap-2"><strong>4.</strong> Lakukan verifikasi silang pada portal fact-checking resmi atau basis data jurnal ilmiah.</div>
+                                    </div>
+                                </div>
+
+                                {/* FAQ Accordion */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-4">FAQ Seputar Fakta, Opini, dan Disinformasi</h2>
+                                    <div className="space-y-3">
+                                        {faqs4.map((faq, idx) => (
+                                            <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                                                <button onClick={() => toggleFaq(idx)} className="w-full p-4 text-left font-bold text-xs sm:text-sm text-navy-900 flex justify-between items-center hover:bg-slate-100 transition-smooth">
+                                                    <span>{idx + 1}. {faq.q}</span>
+                                                    <span className="text-slate-400 font-mono text-base">{openFaq === idx ? '−' : '+'}</span>
+                                                </button>
+                                                {openFaq === idx && (
+                                                    <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3 bg-white">
+                                                        {faq.a}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Call to action & Links */}
+                                <div className="border-t border-slate-200 pt-6 bg-primary-50 p-5 rounded-xl text-primary-900 text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div>
+                                        <strong>Tips Literasi Verisight:</strong> Latih kemampuan berpikir kritis mulai sekarang. Biasakan berdiskusi berdasarkan data empiris, bukan asumsi!
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => { setSelectedArticleId(1); }} className="px-3 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-smooth text-xs flex-shrink-0">
+                                            Artikel #1
+                                        </button>
+                                        <button onClick={() => { setSelectedArticleId(3); }} className="px-3 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-smooth text-xs flex-shrink-0">
+                                            Artikel #3
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                );
+            }
+
+            // ARTIKEL 3: Mengenali Judul Clickbait & Sensasional (art2.md)
+            if (selectedArticleId === 3) {
+                const faqs3 = [
+                    {
+                        q: "Apakah semua judul menarik pasti clickbait?",
+                        a: "Tidak. Judul yang menarik tetap wajar dan sah selama informasinya jujur, akurat, dan sesuai dengan isi artikel tanpa manipulasi fakta."
+                    },
+                    {
+                        q: "Mengapa media besar terkadang juga memakai judul sensasional?",
+                        a: "Persaingan trafik dan algoritma media sosial membuat sebagian media ikut mengadopsi gaya ini. Namun media yang kredibel tetap menjaga integritas dan kebenaran isi kontennya."
+                    },
+                    {
+                        q: "Bagaimana cara melatih diri agar tidak mudah terpancing judul?",
+                        a: "Biasakan membaca isi artikel secara lengkap sebelum berkomentar atau membagikannya ke orang lain. Tanyakan pada diri sendiri apakah judul tersebut informatif atau hanya provokatif."
+                    },
+                    {
+                        q: "Apakah judul clickbait melanggar aturan platform media sosial?",
+                        a: "Beberapa platform (seperti Meta dan Google) mulai membatasi jangkauan konten dengan judul menyesatkan, meskipun penerapannya terus diperbarui secara berkala."
+                    }
+                ];
+
+                return (
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                        <button onClick={() => navigate('/literacy')} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold mb-6 transition-smooth">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                            <span>Kembali ke Daftar Artikel Literasi</span>
+                        </button>
+
+                        <article className="bg-white rounded-2xl border border-slate-200 card-shadow overflow-hidden">
+                            {/* Header Banner */}
+                            <div className="bg-navy-900 text-white p-6 sm:p-10 relative overflow-hidden">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest">Tingkat Dasar • Media Sosial</span>
+                                    <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        6 menit baca
+                                    </span>
+                                </div>
+                                <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
+                                    Mengenali Judul Clickbait & Sensasional
+                                </h1>
+                                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                                    Pelajari ciri-ciri judul yang dibuat khusus memancing emosi dan umpan klik agar tidak mudah terjebak hoaks di media sosial.
+                                </p>
+                            </div>
+
+                            {/* Article Body */}
+                            <div className="p-6 sm:p-10 space-y-8 text-slate-800 text-sm leading-relaxed">
+                                {/* Intro */}
+                                <div className="bg-primary-50/60 p-5 rounded-xl border border-primary-100 text-primary-900 text-sm">
+                                    Pernahkah kamu mengklik sebuah berita karena judulnya terdengar mengejutkan, lalu kecewa karena isinya jauh berbeda? Fenomena ini disebut <strong>judul clickbait</strong>, sebuah teknik yang sengaja dirancang untuk memancing rasa penasaran atau emosi pembaca. Sayangnya, banyak konten hoaks memanfaatkan taktik ini agar cepat viral tanpa memedulikan kebenaran isinya.
+                                </div>
+
+                                <p>
+                                    Artikel ini membahas ciri-ciri utama judul clickbait, mengapa taktik ini efektif secara psikologis, serta cara membedakannya dari judul berita yang kredibel. Dengan memahami pola ini, kamu bisa lebih selektif memilih informasi yang layak dipercaya.
+                                </p>
+
+                                {/* Apa itu Clickbait */}
+                                <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
+                                    <h3 className="text-base font-bold text-navy-900 flex items-center gap-2">
+                                        <span className="w-7 h-7 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center text-xs font-black">?</span>
+                                        Apa Itu Judul Clickbait dan Mengapa Efektif?
+                                    </h3>
+                                    <p className="text-slate-600 text-xs sm:text-sm">
+                                        Secara sederhana, judul clickbait adalah judul yang dibuat berlebihan atau menggantung informasi penting demi memancing klik. Taktik ini bekerja memanfaatkan efek psikologis yang disebut <strong>"Curiosity Gap"</strong>—celah antara apa yang sudah diketahui pembaca dan apa yang ingin mereka ketahui.
+                                    </p>
+                                    <p className="text-slate-600 text-xs sm:text-sm">
+                                        Semakin lebar celah tersebut, semakin besar dorongan seseorang untuk mengklik judul itu. Selain rasa penasaran, emosi seperti kemarahan, ketakutan, dan kekhawatiran juga sering dimanfaatkan untuk memicu persepsi impulsif.
+                                    </p>
+                                </div>
+
+                                {/* Ciri-Ciri Umum */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-3">Ciri-Ciri Umum Judul Clickbait</h2>
+                                    <p className="mb-4">
+                                        Mengenali pola judul clickbait sebenarnya cukup mudah jika kamu tahu tanda-tandanya. Berikut beberapa pola yang paling sering muncul di linimasa:
+                                    </p>
+                                    <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700">
+                                            🔤 <strong>Kapital Berlebihan:</strong> Penggunaan HURUF KAPITAL secara masif dan tanda seru ganda (!!).
+                                        </div>
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700">
+                                            ❓ <strong>Informasi Menggantung:</strong> Menyembunyikan fakta utama, contoh: <em>"Ternyata Ini Alasannya!"</em>.
+                                        </div>
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700">
+                                            🔥 <strong>Kata Superlatif:</strong> Memakai kata <em>"mengejutkan"</em>, <em>"gila"</em>, atau <em>"tak disangka"</em>.
+                                        </div>
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700">
+                                            🔢 <strong>Angka Tanpa Konteks:</strong> Menyebutkan <em>"5 Fakta yang Bikin Kamu Syok"</em> tanpa dasar ilmiah.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Judul Pemancing Emosi */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-3">Judul yang Sengaja Memancing Emosi</h2>
+                                    <p className="mb-4">
+                                        Berbeda dari judul yang sekadar menggantung rasa penasaran, ada juga judul yang dirancang khusus untuk memancing emosi negatif seperti amarah atau ketakutan massal.
+                                    </p>
+                                    <div className="bg-rose-50 p-5 rounded-xl border border-rose-200 space-y-2 mb-4">
+                                        <h4 className="font-bold text-rose-900 text-xs uppercase tracking-wider">Pola Judul Pemancing Emosi Negatif:</h4>
+                                        <ul className="list-disc pl-5 text-xs text-rose-800 space-y-1">
+                                            <li>Menggunakan kata "Waspada", "Darurat", atau "Bahaya" tanpa data pendukung resmi.</li>
+                                            <li>Menyudutkan pihak tertentu secara langsung di judul tanpa konfirmasi atau verifikasi.</li>
+                                            <li>Membesar-besarkan skala masalah, misalnya <em>"Seluruh Indonesia Terancam!"</em>.</li>
+                                            <li>Menyisipkan opini subjektif sebagai fakta mutlak, seperti <em>"Terbukti Merugikan Rakyat!"</em>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Membedakan Clickbait & Kredibel */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-3">Cara Membedakan Judul Clickbait vs Berita Kredibel</h2>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs sm:text-sm">
+                                        <div className="flex gap-2"><strong>1.</strong> Tanyakan pada diri sendiri: <em>"Apakah judul ini menjelaskan fakta atau menyembunyikan informasi?"</em></div>
+                                        <div className="flex gap-2"><strong>2.</strong> Periksa apakah judul menggunakan kata-kata emosional atau provokatif berlebihan.</div>
+                                        <div className="flex gap-2"><strong>3.</strong> Bandingkan judul dengan isi artikel—apakah sesuai atau berbeda jauh.</div>
+                                        <div className="flex gap-2"><strong>4.</strong> Bandingkan judul isu yang sama dari media massa resmi lain. Jika media kredibel lain menulis secara netral, judul pertama jelas clickbait.</div>
+                                    </div>
+                                </div>
+
+                                {/* FAQ Accordion */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-4">FAQ Seputar Judul Clickbait</h2>
+                                    <div className="space-y-3">
+                                        {faqs3.map((faq, idx) => (
+                                            <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                                                <button onClick={() => toggleFaq(idx)} className="w-full p-4 text-left font-bold text-xs sm:text-sm text-navy-900 flex justify-between items-center hover:bg-slate-100 transition-smooth">
+                                                    <span>{idx + 1}. {faq.q}</span>
+                                                    <span className="text-slate-400 font-mono text-base">{openFaq === idx ? '−' : '+'}</span>
+                                                </button>
+                                                {openFaq === idx && (
+                                                    <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3 bg-white">
+                                                        {faq.a}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Call to action & Links */}
+                                <div className="border-t border-slate-200 pt-6 bg-primary-50 p-5 rounded-xl text-primary-900 text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div>
+                                        <strong>Tips Literasi Verisight:</strong> Mulai sekarang, biasakan membaca isi berita secara utuh sebelum membagikannya. Simpan artikel ini sebagai panduan cepat!
+                                    </div>
+                                    <button onClick={() => { setSelectedArticleId(1); }} className="px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-smooth text-xs flex-shrink-0">
+                                        Baca Artikel #1 (Manipulasi Foto)
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                );
+            }
+
+            // ARTIKEL 1: Mengenali Tangkapan Layar & Foto Hasil Manipulasi (test1.md)
+            if (selectedArticleId === 1) {
+                const faqs = [
+                    {
+                        q: "Apakah semua foto editan pasti terdeteksi lewat metadata?",
+                        a: "Tidak selalu. Banyak platform media sosial (seperti WhatsApp, Instagram, dan X) yang secara otomatis menghapus data EXIF saat gambar diunggah untuk menghemat ukuran file dan menjaga privasi pengguna. Oleh karena itu, ketiadaan metadata tidak secara otomatis membuktikan gambar tersebut asli atau palsu—metode ini sebaiknya dipadukan dengan teknik analisis font dan pencarian gambar terbalik."
+                    },
+                    {
+                        q: "Aplikasi apa yang bisa dipakai untuk reverse image search di HP (Android/iOS)?",
+                        a: "Kamu bisa menggunakan aplikasi Google Lens (terintegrasi di Google App atau Chrome), Yandex Images, atau layanan web TinEye.com yang dapat diakses langsung dari peramban ponsel."
+                    },
+                    {
+                        q: "Bagaimana jika hasil reverse image search tidak menemukan apa pun?",
+                        a: "Ketiadaan hasil bukan jaminan gambar itu asli. Pelaku manipulasi sering kali memotong (crop), membalik (flip horizontal), atau mengubah warna gambar agar tidak terdeteksi oleh mesin pencari. Coba potong elemen utama dalam gambar (seperti wajah atau papan nama) lalu lakukan pencarian ulang secara terpisah."
+                    },
+                    {
+                        q: "Apakah tangkapan layar chat bisa dipalsukan tanpa aplikasi edit foto khusus?",
+                        a: "Bisa. Saat ini banyak tersedia situs web 'Fake Chat Generator' (seperti generator obrolan WhatsApp atau DM Instagram palsu) yang memungkinkan seseorang membuat percakapan buatan hanya dalam hitungan detik. Selalu utamakan mengonfirmasi isi obrolan dari sumber primer atau saksi kunci."
+                    }
+                ];
+
+                return (
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
+                        <button onClick={() => navigate('/literacy')} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold mb-6 transition-smooth">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                            <span>Kembali ke Daftar Artikel Literasi</span>
+                        </button>
+
+                        <article className="bg-white rounded-2xl border border-slate-200 card-shadow overflow-hidden">
+                            {/* Header Banner */}
+                            <div className="bg-navy-900 text-white p-6 sm:p-10 relative overflow-hidden">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="px-3 py-1 bg-primary-500/20 text-primary-300 text-xs font-bold rounded-full border border-primary-400/30 uppercase tracking-widest">Tingkat Dasar • Gambar</span>
+                                    <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        4 menit baca
+                                    </span>
+                                </div>
+                                <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight mb-4">
+                                    Mengenali Tangkapan Layar & Foto Hasil Manipulasi
+                                </h1>
+                                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                                    Teknik praktis mendeteksi editing metadata, font janggal, dan memanfaatkan pencarian gambar terbalik agar tidak mudah terkecoh hoaks visual.
+                                </p>
+                            </div>
+
+                            {/* Article Body */}
+                            <div className="p-6 sm:p-10 space-y-8 text-slate-800 text-sm leading-relaxed">
+                                {/* Intro */}
+                                <div className="bg-primary-50/60 p-5 rounded-xl border border-primary-100 text-primary-900 text-sm">
+                                    Pernahkah kamu melihat tangkapan layar chat viral yang ternyata palsu? Di era digital, <strong>foto hasil manipulasi</strong> beredar begitu cepat sehingga sulit dibedakan dari yang asli. Banyak hoaks besar justru bermula dari satu gambar yang telah disunting sedemikian rupa agar terlihat meyakinkan. Kemampuan mengenali tanda-tanda manipulasi visual merupakan keterampilan wajib di media sosial.
+                                </div>
+
+                                <p>
+                                    Artikel ini membahas tiga teknik praktis: memeriksa metadata gambar (EXIF), mengenali font yang janggal pada tangkapan layar, serta memanfaatkan pencarian gambar terbalik (reverse image search). Dengan memahami ketiganya, Anda bisa memverifikasi keaslian konten sebelum membagikannya.
+                                </p>
+
+                                {/* Bahaya Foto Manipulasi */}
+                                <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
+                                    <h3 className="text-base font-bold text-navy-900 flex items-center gap-2">
+                                        <span className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-black">!</span>
+                                        Mengapa Foto Hasil Manipulasi Begitu Berbahaya?
+                                    </h3>
+                                    <p className="text-slate-600 text-xs sm:text-sm">
+                                        Gambar palsu memiliki kekuatan persuasi yang tinggi karena otak manusia cenderung lebih cepat percaya pada bukti visual dibanding teks. Sayangnya, hal ini sering dimanfaatkan untuk menyebarkan disinformasi atau memicu kepanikan publik.
+                                    </p>
+                                    <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-700">
+                                            🚨 <strong>Merusak Reputasi:</strong> Memfitnah individu atau institusi secara instan.
+                                        </div>
+                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-700">
+                                            💥 <strong>Kesalahpahaman Publik:</strong> Memicu konflik dan distorsi fakta sejarah/peristiwa.
+                                        </div>
+                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-700">
+                                            💸 <strong>Modus Penipuan:</strong> Bukti transfer palsu atau struk pembayaran rekayasa.
+                                        </div>
+                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-700">
+                                            📉 <strong>Krisis Kepercayaan:</strong> Menurunkan standar kebenaran di era digital.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Teknik 1 */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="px-3 py-1 bg-primary-600 text-white font-bold text-xs rounded-lg">Teknik 1</span>
+                                        <h2 className="text-lg font-bold text-navy-900">Memeriksa Metadata Gambar (EXIF Data)</h2>
+                                    </div>
+                                    <p className="mb-4">
+                                        Setiap foto digital menyimpan data teknis yang disebut <strong>metadata (EXIF)</strong>. Data ini mencatat kamera yang digunakan, waktu pengambilan gambar, resolusi, hingga lokasi GPS jika aktif.
+                                    </p>
+                                    <p className="mb-4">
+                                        Ketika gambar diedit menggunakan aplikasi seperti Photoshop atau Canva, nama software penyuntingan akan tercatat pada file. Langkah sederhana memeriksa metadata:
+                                    </p>
+                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs sm:text-sm">
+                                        <div className="flex gap-2"><strong>1.</strong> Unduh foto yang ingin diperiksa ke komputer atau perangkat Anda.</div>
+                                        <div className="flex gap-2"><strong>2.</strong> Buka situs pemeriksa EXIF seperti <em>Jeffrey's Exif Viewer</em> atau ExifData.com.</div>
+                                        <div className="flex gap-2"><strong>3.</strong> Unggah foto tersebut dan amati kolom <em>"Software"</em> atau <em>"Modify Date"</em>.</div>
+                                        <div className="flex gap-2"><strong>4.</strong> Bandingkan waktu pembuatan dengan konteks narasi yang diklaim di media sosial.</div>
+                                    </div>
+                                </div>
+
+                                {/* Teknik 2 */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="px-3 py-1 bg-primary-600 text-white font-bold text-xs rounded-lg">Teknik 2</span>
+                                        <h2 className="text-lg font-bold text-navy-900">Mengenali Font Janggal pada Tangkapan Layar</h2>
+                                    </div>
+                                    <p className="mb-4">
+                                        Tangkapan layar palsu (seperti percakapan WhatsApp atau notifikasi m-Banking buatan) kerap memiliki ketidaksesuaian font. Pelaku manipulasi biasanya menempelkan teks baru di atas latar belakang asli.
+                                    </p>
+                                    <div className="bg-amber-50 p-5 rounded-xl border border-amber-200 space-y-2 mb-4">
+                                        <h4 className="font-bold text-amber-900 text-xs uppercase tracking-wider">Ciri-Ciri Utama Font Hasil Suntingan:</h4>
+                                        <ul className="list-disc pl-5 text-xs text-amber-800 space-y-1">
+                                            <li>Ukuran huruf (font size) tidak seragam antarbaris teks.</li>
+                                            <li>Jenis tipografi berbeda dari font bawaan (default font) aplikasi resmi.</li>
+                                            <li>Pinggiran teks terlihat kasar atau buram (pixelated/anti-aliasing janggal) saat di-zoom.</li>
+                                            <li>Warna piksel teks sedikit berbeda dari elemen tombol di sekelilingnya.</li>
+                                            <li>Perataan garis teks (alignment) miring atau tidak sejajar dengan kotak dialog.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Teknik 3 */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="px-3 py-1 bg-primary-600 text-white font-bold text-xs rounded-lg">Teknik 3</span>
+                                        <h2 className="text-lg font-bold text-navy-900">Memanfaatkan Pencarian Gambar Terbalik (Reverse Image Search)</h2>
+                                    </div>
+                                    <p className="mb-4">
+                                        <strong>Reverse Image Search</strong> adalah cara paling ampuh untuk melacak kapan dan di mana foto tersebut pertama kali diunggah di internet.
+                                    </p>
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-xs sm:text-sm text-blue-900 mb-4">
+                                        <strong>Langkah Verifikasi:</strong> Gunakan <strong>Google Lens</strong> atau <strong>TinEye.com</strong>, unggah gambar yang dicurigai, lalu amati tanggal publikasi paling awal dari foto tersebut untuk mengonfirmasi apakah foto lama sengaja didaur ulang dengan narasi baru.
+                                    </div>
+                                </div>
+
+                                {/* FAQ Accordion */}
+                                <div className="border-t border-slate-100 pt-6">
+                                    <h2 className="text-lg font-bold text-navy-900 mb-4">FAQ Seputar Deteksi Foto & Tangkapan Layar Manipulasi</h2>
+                                    <div className="space-y-3">
+                                        {faqs.map((faq, idx) => (
+                                            <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                                                <button onClick={() => toggleFaq(idx)} className="w-full p-4 text-left font-bold text-xs sm:text-sm text-navy-900 flex justify-between items-center hover:bg-slate-100 transition-smooth">
+                                                    <span>{idx + 1}. {faq.q}</span>
+                                                    <span className="text-slate-400 font-mono text-base">{openFaq === idx ? '−' : '+'}</span>
+                                                </button>
+                                                {openFaq === idx && (
+                                                    <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3 bg-white">
+                                                        {faq.a}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Rekomendasi Modul & Sumber Eksternal */}
+                                <div className="border-t border-slate-200 pt-6 grid sm:grid-cols-2 gap-6">
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                        <h4 className="font-bold text-navy-900 text-xs mb-3 uppercase tracking-wider">Artikel Terkait (Internal Link)</h4>
+                                        <ul className="space-y-2 text-xs">
+                                            <li><button onClick={() => { setSelectedArticleId(3); }} className="text-primary-600 hover:underline font-semibold">• Mengenali Judul Clickbait & Sensasional</button></li>
+                                            <li><button onClick={() => navigate('/literacy')} className="text-primary-600 hover:underline font-semibold">• Cara Memeriksa Sumber Informasi & Portal Web Palsu</button></li>
+                                            <li><button onClick={() => navigate('/literacy')} className="text-primary-600 hover:underline font-semibold">• Waspada Deepfake Audio & Video Generatif AI</button></li>
+                                        </ul>
+                                    </div>
+                                    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                        <h4 className="font-bold text-navy-900 text-xs mb-3 uppercase tracking-wider">Referensi Perkakas Eksternal</h4>
+                                        <ul className="space-y-2 text-xs text-slate-600">
+                                            <li><a href="https://lens.google.com" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-semibold">🔗 Google Lens (Reverse Image Search)</a></li>
+                                            <li><a href="https://tineye.com" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-semibold">🔗 TinEye Reverse Image Engine</a></li>
+                                            <li><a href="https://exifdata.com" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-semibold">🔗 Jeffrey's EXIF Viewer Tool</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                );
+            }
+
+            // DEFAULT PLACEHOLDER FOR OTHER ARTICLES
+            const mod = literacyModules.find(m => m.id === selectedArticleId) || literacyModules[0];
             return (
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
                     <button onClick={() => navigate('/literacy')} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-bold mb-6 transition-smooth">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-                        <span>Kembali ke Daftar Artikel</span>
+                        <span>Kembali ke Daftar Artikel Literasi</span>
                     </button>
-                    <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 sm:p-10">
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full inline-block mb-3">Tingkat Dasar • Gambar</span>
-                        <h1 className="text-2xl font-black text-navy-900 mb-4">Mengenali Tangkapan Layar & Foto Hasil Manipulasi</h1>
-                        <div className="prose-clean text-sm">
-                            <h2>1. Manipulasi Gambar Tangkapan Layar</h2>
-                            <p>Tangkapan layar obrolan sering dimanfaatkan untuk menciptakan kesan pesan rahasia. Format ini relatif mudah disunting menggunakan aplikasi penyuntingan grafis sederhana.</p>
+                    <div className="bg-white rounded-2xl border border-slate-200 card-shadow p-6 sm:p-10 text-center">
+                        <span className="px-3 py-1 bg-primary-100 text-primary-800 text-xs font-bold rounded-full inline-block mb-3">{mod.kategori} • {mod.durasi}</span>
+                        <h1 className="text-2xl font-black text-navy-900 mb-3">{mod.judul}</h1>
+                        <p className="text-slate-600 text-sm max-w-xl mx-auto mb-6">{mod.deskripsi}</p>
+                        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-xs text-slate-500 mb-6">
+                            Materi untuk modul artikel ini sedang disiapkan. Silakan jelajahi artikel <strong>"Mengenali Tangkapan Layar & Foto Hasil Manipulasi"</strong> (Artikel #1) atau <strong>"Mengenali Judul Clickbait & Sensasional"</strong> (Artikel #3).
+                        </div>
+                        <div className="flex justify-center gap-3">
+                            <button onClick={() => { setSelectedArticleId(1); }} className="px-5 py-2.5 bg-primary-600 text-white font-bold text-xs rounded-xl hover:bg-primary-700 transition-smooth">
+                                Buka Artikel #1
+                            </button>
+                            <button onClick={() => { setSelectedArticleId(3); }} className="px-5 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition-smooth">
+                                Buka Artikel #3
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -595,6 +1456,7 @@
         function App() {
             const { route, navigate } = useRouter();
             const [lastAnalysis, setLastAnalysis] = useState(null);
+            const [selectedArticleId, setSelectedArticleId] = useState(1);
 
             useEffect(() => { window.scrollTo(0, 0); }, [route]);
 
@@ -603,8 +1465,8 @@
                     case '/': case '': return <CheckPage navigate={navigate} setLastAnalysis={setLastAnalysis} />;
                     case '/check/result': return <AnalysisResult navigate={navigate} lastAnalysis={lastAnalysis} />;
                     case '/about': return <AboutPage navigate={navigate} />;
-                    case '/literacy': return <LiteracyPage navigate={navigate} />;
-                    case '/literacy/detail': return <LiteracyDetailPage navigate={navigate} />;
+                    case '/literacy': return <LiteracyPage navigate={navigate} setSelectedArticleId={setSelectedArticleId} />;
+                    case '/literacy/detail': return <LiteracyDetailPage navigate={navigate} selectedArticleId={selectedArticleId} setSelectedArticleId={setSelectedArticleId} />;
                     case '/quiz': return <QuizPage navigate={navigate} />;
                     default: return <CheckPage navigate={navigate} setLastAnalysis={setLastAnalysis} />;
                 }
@@ -627,5 +1489,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </body>
+
 </html>
 {% endraw %}
