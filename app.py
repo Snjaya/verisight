@@ -58,12 +58,33 @@ def perbaiki_warna_status_badge(html_text):
     )
     return html_text
 
+def check_domain_security(url):
+    """Verifikasi keamanan domain:
+    Hanya mengizinkan tautan dari Media Sosial (Instagram, TikTok, X, Reddit, Facebook, YouTube)
+    dan Portal Berita / Situs Web Resmi.
+    Domain lain yang acak / tidak dikenal akan ditolak sebagai Input Tidak Valid.
+    """
+    social_domains = [
+        'instagram.com', 'instagr.am', 'tiktok.com', 'vt.tiktok.com', 'vm.tiktok.com',
+        'x.com', 'twitter.com', 'reddit.com', 'facebook.com', 'fb.watch',
+        'youtube.com', 'youtu.be'
+    ]
+    try:
+        domain = urllib.parse.urlparse(url).netloc.lower()
+        if any(sd in domain for sd in social_domains):
+            return True, 'SOCIAL_MEDIA'
+        if domain and '.' in domain:
+            return True, 'NEWS_OR_WEB'
+        return False, 'INVALID'
+    except:
+        return False, 'INVALID'
+
 def extract_keywords_from_url(url):
     try:
         path = urllib.parse.urlparse(url).path
         query = urllib.parse.urlparse(url).query
         raw_slug = path + ' ' + query
-        raw_slug = re.sub(r'(comments|status|posts|videos|reels|story\.php|fbid|photo\.php|watch|user|bisnis|amp|read|tren|news|berita|article|html|php|index)', ' ', raw_slug, flags=re.IGNORECASE)
+        raw_slug = re.sub(r'(comments|status|posts|videos|reels|reel|story\.php|fbid|photo\.php|watch|user|bisnis|amp|read|tren|news|berita|article|html|php|index)', ' ', raw_slug, flags=re.IGNORECASE)
         raw_slug = re.sub(r'[/_\-\d\?=&\.]', ' ', raw_slug)
         words = [w for w in raw_slug.split() if len(w) > 2 and w.lower() not in {
             'com', 'https', 'http', 'www', 'share', 'utm', 'source', 'medium', 'id', 'en'
@@ -80,15 +101,15 @@ def ambil_teks_dari_link(url):
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     
-    is_social_media = any(domain in url.lower() for domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com', 'fb.watch', 'tiktok.com', 'reddit.com'])
+    is_social_media = any(domain in url.lower() for domain in ['x.com', 'twitter.com', 'instagram.com', 'instagr.am', 'facebook.com', 'fb.watch', 'tiktok.com', 'reddit.com', 'youtube.com', 'youtu.be'])
     platform_name = "Media Sosial"
-    if 'x.com' in url or 'twitter.com' in url: platform_name = "X (Twitter)"
-    elif 'instagram.com' in url: platform_name = "Instagram"
-    elif 'facebook.com' in url or 'fb.watch' in url: platform_name = "Facebook"
-    elif 'tiktok.com' in url: platform_name = "TikTok"
+    if 'instagram.com' in url or 'instagr.am' in url: platform_name = "Instagram Reels/Video"
+    elif 'tiktok.com' in url: platform_name = "TikTok Video"
+    elif 'youtube.com' in url or 'youtu.be' in url: platform_name = "YouTube Video/Shorts"
+    elif 'x.com' in url or 'twitter.com' in url: platform_name = "X (Twitter)"
+    elif 'facebook.com' in url or 'fb.watch' in url: platform_name = "Facebook Video/Reels"
     elif 'reddit.com' in url: platform_name = "Reddit"
 
-    # A. SCRAPING DEDIKASI UNTUK UNGGAHAN MEDIA SOSIAL (META TAGS + SLUG)
     try:
         respons = requests.get(url, headers=headers, timeout=5, verify=False)
         if respons.status_code == 200:
@@ -106,8 +127,8 @@ def ambil_teks_dari_link(url):
 
             if is_social_media:
                 slug_kw = extract_keywords_from_url(url)
-                combined_social_text = f"[Unggahan Unggulan {platform_name}]\nJudul/Meta Title: {title_meta or judul}\nTeks Deskripsi/Konten: {desc_meta or body_teks[:1000]}\nKata Kunci Topik: {slug_kw}"
-                return judul or title_meta or f"Unggahan {platform_name}", combined_social_text
+                combined_social_text = f"[Konten {platform_name}]\nJudul / Meta Caption Video: {title_meta or judul}\nDeskripsi / Teks Unggahan: {desc_meta or body_teks[:1000]}\nKata Kunci Isu dari Slug: {slug_kw}"
+                return judul or title_meta or f"Unggahan Video {platform_name}", combined_social_text
             
             return judul, body_teks
         return None, "ERROR_LINK"
@@ -321,35 +342,68 @@ def analyze_text():
         except Exception as e:
             return jsonify({"error": "Format gambar tidak didukung."}), 400
 
-    # B. TAB URL / LINK MODE (PEMERIKSAAN TAUTAN BERITA ATAU MEDIA SOSIAL)
+    # B. TAB URL / LINK MODE (PEMERIKSAAN TAUTAN BERITA ATAU MEDIA SOSIAL / REELS)
     elif input_url:
-        if not pola_url.match(input_url) and not input_url.startswith('http'):
+        url_target = input_url
+        if not url_target.startswith('http'):
+            url_target = 'https://' + url_target
+
+        is_valid_url, url_type = check_domain_security(url_target)
+        
+        # KEAMANAN DOMAIN: HANYA IZINKAN MEDIA SOSIAL DAN PORTAL BERITA RESMI
+        if not is_valid_url or not pola_url.match(url_target):
             html_bukan_link = """
             <div class="bg-rose-50 p-6 rounded-xl border border-rose-200 text-center mb-6">
                 <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
-                <h4 class="font-bold text-rose-900 text-lg mb-2">Bukan Tautan Berita / Media Sosial</h4>
-                <p class="text-rose-700 text-sm">Teks yang Anda masukkan di kolom URL tidak memiliki format tautan yang valid (seperti http:// atau www.). Harap gunakan kolom 'Teks Klaim' jika Anda ingin mengetik pernyataan biasa.</p>
+                <h4 class="font-bold text-rose-900 text-lg mb-2">Input Tidak Valid</h4>
+                <p class="text-rose-700 text-sm">Tautan yang Anda masukkan bukan merupakan platform media sosial resmi (Instagram, TikTok, X, Reddit, Facebook, YouTube) atau portal berita resmi yang dapat diverifikasi faktanya.</p>
             </div>
             """
-            return jsonify({"result": html_bukan_link, "thinking": "Input ditolak oleh sistem penjaga. Format tidak menyerupai tautan web."})
+            return jsonify({"result": html_bukan_link, "thinking": "Input ditolak oleh sistem penjaga keamanan domain. Format atau domain tidak dikenal."})
 
-        url_target = input_url
-        if not url_target.startswith('http'):
-            url_target = 'https://' + url_target
-            
         judul_halaman, hasil_scraping = ambil_teks_dari_link(url_target)
-        
-        if hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 30:
-            teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\n" + (f"Judul/Meta Artikel: {judul_halaman}\n" if judul_halaman else "") + f"Isi Teks / Meta Unggahan:\n{hasil_scraping}"
-            query_search = judul_halaman if (judul_halaman and len(judul_halaman) > 10) else extract_keywords_from_url(url_target)
-        else:
-            url_keywords = extract_keywords_from_url(url_target)
-            teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\nTopik Isu (dikategori dari Tautan Slug): {url_keywords}"
-            query_search = url_keywords if url_keywords else url_target
+        slug_kw = extract_keywords_from_url(url_target)
 
-        # EXCLUDE URL INPUT PENGGUNA AGAR REFERENSI HANYA BERISI BERITA EKSTERNAL PEMBANDING
+        if url_type == 'SOCIAL_MEDIA':
+            platform_name = "Media Sosial (Instagram Reels / TikTok / X / Reddit / Facebook / YouTube)"
+            if 'instagram.com' in url_target or 'instagr.am' in url_target: platform_name = "Instagram Reels Video"
+            elif 'tiktok.com' in url_target: platform_name = "TikTok Video"
+            elif 'youtube.com' in url_target or 'youtu.be' in url_target: platform_name = "YouTube Video / Shorts"
+            elif 'x.com' in url_target or 'twitter.com' in url_target: platform_name = "X (Twitter) Video / Post"
+            elif 'reddit.com' in url_target: platform_name = "Reddit Post / Video"
+            elif 'facebook.com' in url_target or 'fb.watch' in url_target: platform_name = "Facebook Reels / Video"
+
+            teks_untuk_dianalisis = f"URL Tautan {platform_name}: {url_target}\n"
+            if judul_halaman and len(judul_halaman) > 5 and judul_halaman.lower() not in {'instagram', 'tiktok', 'youtube', 'reddit', 'facebook'}:
+                teks_untuk_dianalisis += f"Judul / Meta Caption Video: {judul_halaman}\n"
+            if hasil_scraping and hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 20:
+                teks_untuk_dianalisis += f"Teks Meta Unggahan: {hasil_scraping}\n"
+            if slug_kw:
+                teks_untuk_dianalisis += f"Kata Kunci Isu dari Slug: {slug_kw}\n"
+            if input_teks:
+                teks_untuk_dianalisis += f"Catatan Teks Pengguna Mengenai Video: {input_teks}\n"
+
+            teks_untuk_dianalisis += f"\nCatatan Penting: Tautan di atas ADALAH konten video pendek/Reels/unggahan media sosial dari {platform_name}. Analisis fakta atau klaim isu yang dibahas di balik video viral ini."
+
+            if judul_halaman and len(judul_halaman) > 10 and judul_halaman.lower() not in {'instagram', 'tiktok', 'youtube', 'reddit', 'facebook'}:
+                query_search = judul_halaman
+            elif slug_kw and len(slug_kw) > 3:
+                query_search = slug_kw
+            elif input_teks:
+                query_search = input_teks
+            else:
+                query_search = "berita viral video media sosial indonesia"
+
+        else:
+            if hasil_scraping != "ERROR_LINK" and len(hasil_scraping) > 30:
+                teks_untuk_dianalisis = f"URL Tautan Artikel Pengguna: {url_target}\n" + (f"Judul Artikel: {judul_halaman}\n" if judul_halaman else "") + f"Isi Teks Artikel:\n{hasil_scraping}"
+                query_search = judul_halaman if (judul_halaman and len(judul_halaman) > 10) else slug_kw
+            else:
+                teks_untuk_dianalisis = f"URL Tautan Pengguna: {url_target}\nTopik Isu (dikategori dari Slug): {slug_kw}"
+                query_search = slug_kw if slug_kw else url_target
+
         referensi_internet = cari_referensi_internet(query_search, exclude_url=url_target)
 
     # C. TAB TEKS BIASA / TEXT STATEMENT MODE
@@ -376,9 +430,10 @@ def analyze_text():
 - Setiap kejadian atau klaim bertanggal {now.year} atau sebelum/sama dengan {waktu_iso} ADALAH MASA KINI ATAU MASA LALU (PRESENT/PAST), BUKAN MASA DEPAN.
 - JANGAN PERNAH menyimpulkan bahwa tanggal dalam format apapun (misal: "{waktu_en}", "{waktu_id}", "{waktu_iso}") yang sesuai dengan waktu sekarang adalah "masa depan" atau menganggap klaim sebagai hoaks/disinformasi hanya karena bertanggal hari ini/tahun {now.year}.
 
-[ATURAN PENJAGA GERBANG / GATEKEEPER INPUT TRIVIAL]
-Pertama, evaluasi apakah "Klaim" di atas benar-benar sebuah klaim, berita, atau informasi yang masuk akal untuk diverifikasi faktanya.
-JIKA input HANYA berupa teks acak/asal-asalan (contoh: "asdfgh", "qwerty", "sasasasa"), kata sapaan/uji coba tanpa konteks (contoh: "halo", "hai", "hello", "tes", "test", "hahaha"), MAKA BERHENTI dan HANYA keluarkan kode HTML ini tanpa markdown ```html:
+[ATURAN PENJAGA GERBANG / GATEKEEPER INPUT TRIVIAL WAJIB]
+1. Evaluasi apakah input pengguna benar-benar sebuah klaim, berita, atau informasi yang masuk akal untuk diverifikasi faktanya.
+2. PERHATIAN KHUSUS UNTUK TAUTAN MEDIA SOSIAL & REELS/VIDEO: Jika input berupa Tautan URL Video/Reels/Unggahan Media Sosial (seperti Instagram Reels, TikTok, YouTube Shorts, X/Twitter, Facebook, Reddit), TAUTAN TERSEBUT ADALAH SANGAT VALID DAN HARUS DIANALISIS! DILARANG KERAS mengembalikan "Input Tidak Valid" untuk tautan video/Reels media sosial. Evaluasi fakta atau klaim di balik video viral tersebut berdasarkan data [Referensi Web].
+3. JIKA input HANYA berupa teks acak/asal-asalan tanpa makna (contoh: "asdfgh", "qwerty", "sasasasa"), kata sapaan/uji coba tanpa konteks (contoh: "halo", "hai", "hello", "tes", "test", "hahaha"), MAKA BERHENTI dan HANYA keluarkan kode HTML Input Tidak Valid ini tanpa markdown ```html:
 
 <div class="bg-rose-50 p-6 rounded-xl border border-rose-200 text-center mb-6">
     <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -408,7 +463,7 @@ Gunakan kelas Tailwind CSS yang tepat untuk span Status Verifikasi:
 [DATA]
 Waktu Acuan Hari Ini: {waktu_sekarang_universal}
 Referensi Web Eksternal Pembanding: {referensi_internet}
-Klaim / Artikel / Unggahan Pengguna: "{teks_untuk_dianalisis}"
+Klaim / Artikel / Unggahan Video Pengguna: "{teks_untuk_dianalisis}"
 
 [ATURAN WAJIB OUTPUT JIKA INPUT VALID]
 Berikan HANYA kode HTML di bawah ini yang sudah diisi dengan analisis nyatamu. JANGAN gunakan tag markdown ```html.
