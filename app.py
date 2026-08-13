@@ -38,21 +38,18 @@ def perbaiki_warna_status_badge(html_text):
     - Menyesatkan -> Amber Yellow (bg-amber-100 text-amber-800)
     - Perlu Verifikasi -> Blue (bg-blue-100 text-blue-800)
     """
-    # Fakta Valid -> Emerald Green
     html_text = re.sub(
         r'class="[^"]*bg-amber-100[^"]*"(>\s*Fakta Valid)',
         r'class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"\1',
         html_text,
         flags=re.IGNORECASE
     )
-    # Disinformasi / Hoaks -> Rose Red
     html_text = re.sub(
         r'class="[^"]*bg-amber-100[^"]*"(>\s*Disinformasi[^\<]*)',
         r'class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800"\1',
         html_text,
         flags=re.IGNORECASE
     )
-    # Perlu Verifikasi -> Blue
     html_text = re.sub(
         r'class="[^"]*bg-amber-100[^"]*"(>\s*Perlu Verifikasi)',
         r'class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800"\1',
@@ -109,7 +106,40 @@ def extract_search_keywords(teks_input):
         return " ".join(filtered[:8])
     return " ".join(words[:8]) if words else teks_input[:60]
 
-def _fetch_gnews(query):
+def translate_to_english_keywords(text):
+    dict_map = {
+        'demo': 'protest', 'demonstrasi': 'protest', 'mahasiswa': 'student',
+        'kebakaran': 'fire', 'terbakar': 'fire', 'karhutla': 'forest fire',
+        'kabut': 'haze', 'asap': 'haze', 'pemilu': 'election', 'pilpres': 'election',
+        'presiden': 'president', 'pemerintah': 'government', 'kebijakan': 'policy',
+        'ekonomi': 'economic', 'korupsi': 'corruption', 'kecelakaan': 'accident',
+        'kapal': 'ship ferry', 'polisi': 'police', 'banjir': 'flood', 'gempa': 'earthquake',
+        'menteri': 'minister', 'rupiah': 'rupiah currency', 'ditutup': 'closed',
+        'sekolah': 'school', 'korban': 'casualty', 'tewas': 'dead'
+    }
+    id_stopwords = {
+        'terjadi', 'setiap', 'hari', 'di', 'pada', 'yang', 'saat', 'dini', 'dan', 'ke', 
+        'dari', 'ini', 'itu', 'dalam', 'dengan', 'untuk', 'atau', 'oleh', 'karena', 
+        'akan', 'telah', 'ada', 'bisa', 'juga', 'sudah', 'adalah', 'merupakan', 'tolong',
+        'analisis', 'periksa', 'fakta'
+    }
+    
+    clean_text = re.sub(r'[^\w\s]', ' ', text.lower())
+    words = clean_text.split()
+    
+    translated_words = []
+    for w in words:
+        if w in dict_map:
+            translated_words.append(dict_map[w])
+        elif w not in id_stopwords and len(w) > 2:
+            translated_words.append(w)
+            
+    query_str = " ".join(translated_words[:7])
+    if 'indonesia' not in query_str.lower() and 'jakarta' not in query_str.lower():
+        query_str = f"Indonesia {query_str}"
+    return query_str
+
+def _fetch_gnews_id(query):
     referensi = []
     try:
         url_gnews = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=id&gl=ID&ceid=ID:id"
@@ -122,14 +152,37 @@ def _fetch_gnews(query):
                 link = item.find('link').text if item.find('link') is not None else ''
                 pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
                 if link:
-                    sumber = title.split(' - ')[-1] if ' - ' in title else 'Media Berita'
+                    sumber = title.split(' - ')[-1] if ' - ' in title else 'Media Nasional'
                     referensi.append({
                         'title': title,
                         'href': link,
-                        'body': f"Berita resmi dari {sumber}. Dipublikasikan pada {pub_date}."
+                        'body': f"[Kanal Berita Nasional] Dari {sumber}. Dipublikasikan: {pub_date}."
                     })
     except Exception as e:
-        print(f"Google News RSS error: {e}")
+        print(f"Google News RSS ID error: {e}")
+    return referensi
+
+def _fetch_gnews_int(query):
+    referensi = []
+    try:
+        url_gnews = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=en-US&gl=US&ceid=US:en"
+        r = requests.get(url_gnews, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}, timeout=4)
+        if r.status_code == 200:
+            root = ET.fromstring(r.text)
+            items = root.findall('.//item')
+            for item in items[:6]:
+                title = item.find('title').text if item.find('title') is not None else ''
+                link = item.find('link').text if item.find('link') is not None else ''
+                pub_date = item.find('pubDate').text if item.find('pubDate') is not None else ''
+                if link:
+                    sumber = title.split(' - ')[-1] if ' - ' in title else 'International Media'
+                    referensi.append({
+                        'title': title,
+                        'href': link,
+                        'body': f"[Kanal Berita Internasional / Global] Berita dari {sumber} (e.g. SCMP, BBC, CNN, Reuters, Al Jazeera, Japan Times). Dipublikasikan: {pub_date}."
+                    })
+    except Exception as e:
+        print(f"Google News RSS International error: {e}")
     return referensi
 
 def _fetch_ddg(query):
@@ -154,17 +207,31 @@ def _fetch_ddg(query):
 def cari_referensi_internet(teks_input):
     hasil_referensi = []
     links_seen = set()
-    query = extract_search_keywords(teks_input)
+    query_id = extract_search_keywords(teks_input)
+    query_en = translate_to_english_keywords(teks_input)
     
-    # PERCEPATAN EKSEKUSI: PANGGIL GOOGLE NEWS & DUCKDUCKGO PARALEL MENGGUNAKAN THREADPOOLEXECUTOR
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        future_gnews = executor.submit(_fetch_gnews, query)
-        future_ddg = executor.submit(_fetch_ddg, query)
+    # PERCEPATAN PARALEL: PANGGIL KANAL NASIONAL, INTERNASIONAL, & DUCKDUCKGO SEKALIGUS
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        future_gnews_id = executor.submit(_fetch_gnews_id, query_id)
+        future_gnews_int = executor.submit(_fetch_gnews_int, query_en)
+        future_ddg = executor.submit(_fetch_ddg, query_id)
         
-        gnews_res = future_gnews.result()
+        gnews_id_res = future_gnews_id.result()
+        gnews_int_res = future_gnews_int.result()
         ddg_res = future_ddg.result()
 
-    for item in gnews_res + ddg_res:
+    # Interleave / gabungkan sumber nasional dan internasional secara seimbang
+    all_combined = []
+    max_len = max(len(gnews_id_res), len(gnews_int_res), len(ddg_res))
+    for i in range(max_len):
+        if i < len(gnews_id_res):
+            all_combined.append(gnews_id_res[i])
+        if i < len(gnews_int_res):
+            all_combined.append(gnews_int_res[i])
+        if i < len(ddg_res):
+            all_combined.append(ddg_res[i])
+
+    for item in all_combined:
         if item['href'] and item['href'] not in links_seen:
             links_seen.add(item['href'])
             hasil_referensi.append(item)
@@ -173,7 +240,7 @@ def cari_referensi_internet(teks_input):
     if not hasil_referensi:
         words = [w for w in re.sub(r'[^\w\s]', ' ', teks_input).split() if len(w) > 3]
         query_broad = " ".join(words[:3]) if words else teks_input[:30]
-        gnews_broad = _fetch_gnews(query_broad)
+        gnews_broad = _fetch_gnews_id(query_broad)
         for item in gnews_broad:
             if item['href'] and item['href'] not in links_seen:
                 links_seen.add(item['href'])
@@ -183,7 +250,7 @@ def cari_referensi_internet(teks_input):
         return "Tidak ditemukan referensi langsung di internet."
 
     hasil_pencarian_teks = ""
-    for i, ref in enumerate(hasil_referensi[:6]):
+    for i, ref in enumerate(hasil_referensi[:8]):
         hasil_pencarian_teks += f"Referensi {i+1}:\n- Judul: {ref['title']}\n- Link: {ref['href']}\n- Ringkasan: {ref['body']}\n\n"
     
     return hasil_pencarian_teks
@@ -296,14 +363,15 @@ JIKA input HANYA berupa teks acak/asal-asalan (contoh: "asdfgh", "qwerty", "sasa
     <p class="text-rose-700 text-sm">Teks yang Anda masukkan tidak terdeteksi sebagai klaim atau informasi berita yang dapat diverifikasi faktanya. Mohon masukkan klaim atau berita yang spesifik.</p>
 </div>
 
-[PETUNJUK ANALISIS SUNGGUH-SUNGGUH & PENCARIAN MANDIRI]
+[PETUNJUK ANALISIS SUNGGUH-SUNGGUH & MULTI-PERSPEKTIF MEDIA NASIONAL DAN INTERNASIONAL]
 - Jangan langsung menyimpulkan klaim "Rendah" atau "Tidak Ada Referensi" secara terburu-buru. Analisis subjek utama, lokasi, dan latar belakang klaim secara mendalam.
-- Gunakan data [Referensi Web] secara optimal untuk memverifikasi kebenaran klaim, atau untuk memberikan informasi relevan terkini tentang topik tersebut.
+- Verisight menggunakan acuan dari **Kanal Berita Nasional** (Kompas, Detik, Antara, CNN Indonesia, dll.) DAN **Kanal Berita Internasional / Global** (seperti South China Morning Post, BBC, Reuters, Al Jazeera, CNN International, Japan Times, AP News, Bloomberg).
+- Gunakan data [Referensi Web] secara optimal untuk menyajikan evaluasi independen yang bebas dari pembatasan atau sensor media lokal.
 
 [ATURAN WAJIB REFERENSI URL & LINK ASLI]
 1. Pada bagian HTML `Referensi Berita & Kanal Cek Fakta Resmi`, kamu WAJIB menyalin URL HTTPS artikel berita spesifik dan lengkap (`Link`) dari data [Referensi Web] di bawah ke dalam tag `<a href="URL_ASLI" target="_blank" rel="noopener noreferrer" class="font-semibold underline hover:text-primary-900">Judul Artikel Asli</a>`.
 2. DILARANG KERAS mencantumkan link ke Halaman Utama / Domain Utama media berita umum saja (seperti `https://kompas.com`, `https://detik.com`, `https://news.kompas.com`, `https://antara.id`). Kamu HARUS menggunakan URL artikel berita spesifik dan lengkap dari data Referensi Web!
-3. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel spesifik dari data Referensi Web (termasuk artikel tautan utama pengguna dan berita pembanding/berita terkait dari media lain).
+3. Tampilkan 2 hingga 4 tautan referensi berita/sumber artikel spesifik dari data Referensi Web (sertakan kombinasi berita nasional dan berita internasional jika tersedia).
 
 [ATURAN WARNA STYLING STATUS VERIFIKASI WAJIB]
 Gunakan kelas Tailwind CSS yang tepat untuk span Status Verifikasi:
