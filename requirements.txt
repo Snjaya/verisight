@@ -5,4 +5,3 @@ duckduckgo-search
 beautifulsoup4
 requests
 pillow
-gunicorn
